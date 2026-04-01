@@ -17,8 +17,6 @@ jobs:
       - name: Get version
         id: version
         run: |
-          pwd
-          ls -la
           VERSION=$(cut -d'=' -f2 .version)
           echo "value=$VERSION" >> $GITHUB_OUTPUT
 
