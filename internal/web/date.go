@@ -5,16 +5,16 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
+	// "github.com/aceberg/ClickAHabit/internal/models"
 )
 
 func dateHandler(c *gin.Context) {
 
-	tab  := c.Param("tab")
+	tab := c.Param("tab")
 	date := c.Param("date")
 	today := setToday()
 
-	// Only initialise checks for today, never for past dates
-	if date == today && today != lastToday {
+	if today != lastToday {
 		setTodayChecks()
 	}
 

@@ -27,17 +27,15 @@ func Gui(dirPath, nodePath string) {
 	appConfig.ConfPath = confPath
 	appConfig.NodePath = nodePath
 
-	// Migrate sqlite1.db -> sqlite.db if needed
+	// Auto-migrate sqlite1.db -> sqlite.db
 	oldDB := dirPath + "/sqlite1.db"
 	_, errNew := os.Stat(appConfig.DBPath)
 	_, errOld := os.Stat(oldDB)
 	if errOld == nil && errNew != nil {
-		// sqlite.db does not exist but sqlite1.db does: copy it
 		log.Println("INFO: migrating sqlite1.db to sqlite.db")
 		data, err := os.ReadFile(oldDB)
 		if err == nil {
-			err = os.WriteFile(appConfig.DBPath, data, 0644)
-			if err != nil {
+			if err = os.WriteFile(appConfig.DBPath, data, 0644); err != nil {
 				log.Println("ERROR: migration failed:", err)
 			} else {
 				log.Println("INFO: migration done")
@@ -63,26 +61,26 @@ func Gui(dirPath, nodePath string) {
 	router := gin.Default()
 
 	templ := template.Must(template.New("").ParseFS(templFS, "templates/*"))
-	router.SetHTMLTemplate(templ) // templates
+	router.SetHTMLTemplate(templ)
 
-	router.StaticFS("/fs/", http.FS(pubFS)) // public
+	router.StaticFS("/fs/", http.FS(pubFS))
 
-	router.GET("/", indexHandler)                // index.go
-	router.GET("/add/:tab/:id", addHandler)      // add-del.go
-	router.GET("/config/", configHandler)        // config.go
-	router.GET("/date/:tab/:date", dateHandler)  // date.go
-	router.GET("/del/:tab/:id", delHandler)      // add-del.go
-	router.GET("/plan/", planHandler)            // plan.go
-	router.GET("/planedit/:id", editHandler)     // plan-edit.go
-	router.GET("/plandel/:id", planDel)          // plan.go
-	router.GET("/stats/:tab/:id", statsHandler)  // stats.go
-	router.GET("/smore/:key", statsMore)         // stats-more.go
-	router.GET("/sdata/:key", statsData)         // stats-data.go
-	router.POST("/sdata-multi", statsMulti)      // stats-multi.go
-	router.GET("/update/:tab/:date", updatePlan) // update.go
+	router.GET("/", indexHandler)
+	router.GET("/add/:tab/:id", addHandler)
+	router.GET("/config/", configHandler)
+	router.GET("/date/:tab/:date", dateHandler)
+	router.GET("/del/:tab/:id", delHandler)
+	router.GET("/plan/", planHandler)
+	router.GET("/planedit/:id", editHandler)
+	router.GET("/plandel/:id", planDel)
+	router.GET("/stats/:tab/:id", statsHandler)
+	router.GET("/smore/:key", statsMore)
+	router.GET("/sdata/:key", statsData)
+	router.POST("/sdata-multi", statsMulti)
+	router.GET("/update/:tab/:date", updatePlan)
 
-	router.POST("/config/", saveConfigHandler) // config.go
-	router.POST("/planedit/", savePlanHandler) // plan-edit.go
+	router.POST("/config/", saveConfigHandler)
+	router.POST("/planedit/", savePlanHandler)
 
 	err := router.Run(address)
 	check.IfError(err)
