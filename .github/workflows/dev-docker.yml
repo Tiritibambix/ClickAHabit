@@ -7,14 +7,13 @@ env:
   IMAGE_NAME: clickahabit
   TAGS: dev
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Build and Push Docker Image to docker.io
         uses: mr-smithers-excellent/docker-build-push@v5
