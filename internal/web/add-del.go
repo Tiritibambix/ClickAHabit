@@ -19,7 +19,6 @@ func addHandler(c *gin.Context) {
 
 	if err == nil {
 		for _, check := range allChecks {
-
 			if ID == check.ID {
 				check.Count = check.Count + 1
 				resp = check.Count
@@ -32,6 +31,7 @@ func addHandler(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, resp)
 }
 
+// delHandler resets count to 0 instead of deleting the entry
 func delHandler(c *gin.Context) {
 
 	tab := c.Param("tab")
@@ -39,7 +39,14 @@ func delHandler(c *gin.Context) {
 	ID, err := strconv.Atoi(IDstr)
 
 	if err == nil {
-		db.Delete(appConfig.DBPath, tab, ID)
+		allChecks = db.Select(appConfig.DBPath, tab)
+		for _, check := range allChecks {
+			if ID == check.ID {
+				check.Count = 0
+				db.Update(appConfig.DBPath, tab, check, check.ID)
+				break
+			}
+		}
 	}
 
 	c.IndentedJSON(http.StatusOK, "ok")
