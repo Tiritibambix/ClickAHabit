@@ -20,6 +20,7 @@ type StatData struct {
 	AvgPerDay     float64
 	AvgPerWeek    float64
 	AvgPerMonth   float64
+	AvgPerYear    float64
 	DowCounts     map[string]int
 	DowDays       map[string]int
 	MonthlyTotals []MonthPoint
@@ -63,13 +64,13 @@ func buildStatData(stat models.Stat) StatData {
 	data.DTotal = stat.DTotal
 	data.CTotal = stat.CTotal
 
-	dowCounts  := make(map[string]int)
-	dowDays    := make(map[string]int)
+	dowCounts   := make(map[string]int)
+	dowDays     := make(map[string]int)
 	monthCounts := make(map[string]int)
 	monthDays   := make(map[string]int)
 	yearCounts  := make(map[string]int)
 	yearDays    := make(map[string]int)
-	weekCounts  := make(map[string]int) // ISO week -> total count
+	weekCounts  := make(map[string]int)
 
 	trackedDays := make(map[string]bool)
 
@@ -79,13 +80,13 @@ func buildStatData(stat models.Stat) StatData {
 			continue
 		}
 
-		dow   := dayOfWeekLabel(t)
-		month := t.Format("2006-01")
-		year  := strconv.Itoa(t.Year())
+		dow      := dayOfWeekLabel(t)
+		month    := t.Format("2006-01")
+		year     := strconv.Itoa(t.Year())
 		isoYear, isoWeek := t.ISOWeek()
-		week  := strconv.Itoa(isoYear) + "-W" + strconv.Itoa(isoWeek)
+		week     := strconv.Itoa(isoYear) + "-W" + strconv.Itoa(isoWeek)
 
-		dowCounts[dow]    += check.Count
+		dowCounts[dow]     += check.Count
 		monthCounts[month] += check.Count
 		yearCounts[year]   += check.Count
 		weekCounts[week]   += check.Count
@@ -101,7 +102,6 @@ func buildStatData(stat models.Stat) StatData {
 	data.DowCounts = dowCounts
 	data.DowDays   = dowDays
 
-	// Real averages based on actual weeks/months with activity
 	if stat.DTotal > 0 {
 		data.AvgPerDay = float64(stat.CTotal) / float64(stat.DTotal)
 	}
@@ -110,6 +110,9 @@ func buildStatData(stat models.Stat) StatData {
 	}
 	if len(monthCounts) > 0 {
 		data.AvgPerMonth = float64(stat.CTotal) / float64(len(monthCounts))
+	}
+	if len(yearCounts) > 0 {
+		data.AvgPerYear = float64(stat.CTotal) / float64(len(yearCounts))
 	}
 
 	// Monthly sorted list

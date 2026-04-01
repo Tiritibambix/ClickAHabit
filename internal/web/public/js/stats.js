@@ -262,6 +262,7 @@ function renderKpis(data) {
     document.getElementById('kpi-avg-day').textContent   = fmt(data.AvgPerDay);
     document.getElementById('kpi-avg-week').textContent  = fmt(data.AvgPerWeek);
     document.getElementById('kpi-avg-month').textContent = fmt(data.AvgPerMonth);
+    document.getElementById('kpi-avg-year').textContent  = fmt(data.AvgPerYear);
 
     let bestMonth = null;
     if (data.MonthlyTotals && data.MonthlyTotals.length)
