@@ -22,7 +22,7 @@ func Gui(dirPath, nodePath string) {
 	appConfig = conf.Get(confPath)
 
 	appConfig.DirPath = dirPath
-	appConfig.DBPath = dirPath + "/sqlite1.db"
+	appConfig.DBPath = dirPath + "/sqlite.db"
 	check.Path(appConfig.DBPath)
 	appConfig.ConfPath = confPath
 	appConfig.NodePath = nodePath

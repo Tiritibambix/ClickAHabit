@@ -20,15 +20,15 @@ type StatData struct {
 	AvgPerDay     float64
 	AvgPerWeek    float64
 	AvgPerMonth   float64
-	DowCounts     map[string]int     // day of week -> total count
-	DowDays       map[string]int     // day of week -> number of days tracked
-	MonthlyTotals []MonthPoint       // sorted list of month -> total count
-	YearlyTotals  []YearPoint        // sorted list of year -> total count
+	DowCounts     map[string]int
+	DowDays       map[string]int
+	MonthlyTotals []MonthPoint
+	YearlyTotals  []YearPoint
 }
 
 // MonthPoint - one month data point
 type MonthPoint struct {
-	Label string // "2024-03"
+	Label string
 	Count int
 	Days  int
 	Avg   float64
@@ -36,13 +36,11 @@ type MonthPoint struct {
 
 // YearPoint - one year data point
 type YearPoint struct {
-	Label string // "2024"
+	Label string
 	Count int
 	Days  int
 	Avg   float64
 }
-
-var dowOrder = []string{"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"}
 
 func statsData(c *gin.Context) {
 	key := c.Param("key")
@@ -65,15 +63,14 @@ func buildStatData(stat models.Stat) StatData {
 	data.DTotal = stat.DTotal
 	data.CTotal = stat.CTotal
 
-	// Maps for aggregation
-	dowCounts := make(map[string]int)
-	dowDays := make(map[string]int)
+	dowCounts  := make(map[string]int)
+	dowDays    := make(map[string]int)
 	monthCounts := make(map[string]int)
-	monthDays := make(map[string]int)
-	yearCounts := make(map[string]int)
-	yearDays := make(map[string]int)
+	monthDays   := make(map[string]int)
+	yearCounts  := make(map[string]int)
+	yearDays    := make(map[string]int)
+	weekCounts  := make(map[string]int) // ISO week -> total count
 
-	// Track unique days for averages
 	trackedDays := make(map[string]bool)
 
 	for _, check := range stat.Checks {
@@ -82,15 +79,17 @@ func buildStatData(stat models.Stat) StatData {
 			continue
 		}
 
-		dow := dayOfWeekLabel(t)
+		dow   := dayOfWeekLabel(t)
 		month := t.Format("2006-01")
-		year := strconv.Itoa(t.Year())
+		year  := strconv.Itoa(t.Year())
+		isoYear, isoWeek := t.ISOWeek()
+		week  := strconv.Itoa(isoYear) + "-W" + strconv.Itoa(isoWeek)
 
-		dowCounts[dow] += check.Count
+		dowCounts[dow]    += check.Count
 		monthCounts[month] += check.Count
-		yearCounts[year] += check.Count
+		yearCounts[year]   += check.Count
+		weekCounts[week]   += check.Count
 
-		// Count unique days per bucket
 		if !trackedDays[check.Date] {
 			trackedDays[check.Date] = true
 			dowDays[dow]++
@@ -100,18 +99,17 @@ func buildStatData(stat models.Stat) StatData {
 	}
 
 	data.DowCounts = dowCounts
-	data.DowDays = dowDays
+	data.DowDays   = dowDays
 
-	// Averages
+	// Real averages based on actual weeks/months with activity
 	if stat.DTotal > 0 {
 		data.AvgPerDay = float64(stat.CTotal) / float64(stat.DTotal)
 	}
-	if stat.DTotal > 0 {
-		// weeks spanned
-		data.AvgPerWeek = data.AvgPerDay * 7
+	if len(weekCounts) > 0 {
+		data.AvgPerWeek = float64(stat.CTotal) / float64(len(weekCounts))
 	}
-	if stat.DTotal > 0 {
-		data.AvgPerMonth = data.AvgPerDay * 30.44
+	if len(monthCounts) > 0 {
+		data.AvgPerMonth = float64(stat.CTotal) / float64(len(monthCounts))
 	}
 
 	// Monthly sorted list
@@ -122,9 +120,9 @@ func buildStatData(stat models.Stat) StatData {
 	sort.Strings(monthKeys)
 
 	for _, k := range monthKeys {
-		days := monthDays[k]
+		days  := monthDays[k]
 		count := monthCounts[k]
-		avg := 0.0
+		avg   := 0.0
 		if days > 0 {
 			avg = float64(count) / float64(days)
 		}
@@ -144,9 +142,9 @@ func buildStatData(stat models.Stat) StatData {
 	sort.Strings(yearKeys)
 
 	for _, k := range yearKeys {
-		days := yearDays[k]
+		days  := yearDays[k]
 		count := yearCounts[k]
-		avg := 0.0
+		avg   := 0.0
 		if days > 0 {
 			avg = float64(count) / float64(days)
 		}
