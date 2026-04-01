@@ -8,9 +8,11 @@ Daily habit tracker and counter
 
 > ⚠️ **Disclaimer**
 > This is a fork of [aceberg/ClickAHabit](https://github.com/aceberg/ClickAHabit), which is no longer maintained.
+> The upstream Docker image has not been updated in ~2 years and does not reflect the current source code.
 > All changes from the original version have been vibe coded. Use at your own risk.
 
 - [Quick start](#quick-start)
+- [Migration from aceberg/clickahabit](#migration-from-acebergclickahabit)
 - [Config](#config)
 - [Options](#options)
 - [Local network only](#local-network-only)
@@ -34,6 +36,12 @@ docker run --name clickahabit \
 tiritibambix/clickahabit
 ```
 Or use [docker-compose.yml](docker-compose.yml)
+
+## Migration from aceberg/clickahabit
+
+This image uses `sqlite.db` instead of `sqlite1.db`. Migration is automatic on first startup: if `sqlite.db` does not exist but `sqlite1.db` does, it will be copied automatically.
+
+If you are switching from `aceberg/clickahabit`, just point your volume to the same data directory and start the container — no manual action required.
 
 ## Config
 
@@ -75,20 +83,31 @@ Or use [docker-compose](docker-compose-local.yml)
 
 ## Changes from original
 
+### Bug fixes
+
+- **Reset today**: "Reset today's counter" now sets count to 0 instead of deleting the entry — the habit stays visible
+- **Past date entries**: navigating to a past date no longer triggers plan reinitialization, preserving existing counts
+
 ### Stats page — reworked
 
-The statistics page has been significantly extended:
-
 - **KPI cards**: active days, total clicks, average per active day / week / month / year, best month, best day of week
-- **Year heatmap**: unchanged from original
-- **Charts**: monthly evolution (bar + avg line), yearly evolution, breakdown by day of week — all using real aggregated data computed server-side
-- **Multi-habit comparison**: select multiple habits via checkboxes, compare their individual curves and a global average on the same chart (monthly or yearly view)
+- **Year heatmap**: preserved from original
+- **Charts**: monthly evolution (bar + avg/active day line), yearly evolution, breakdown by day of week — computed server-side
+- **Habit fusion**: select multiple habits via checkboxes and merge them into a single stat view — combined KPIs, heatmap and charts
+
+### UI
+
+- Compact navbar with icons
+- Cleaner date navigation bar
+- Improved context menu
+- Responsive habit buttons on mobile
+- Config page cleaned up (version block removed)
 
 ### GitHub Actions workflow
 
-- Replaced deprecated `c-py/action-dotenv-to-setenv` action with a native shell step
+- Replaced deprecated `c-py/action-dotenv-to-setenv` with a native shell step
 - Updated all actions to current versions
-- Simplified to `latest` tag only, amd64 build
+- Simplified to `latest` tag, amd64 only
 
 ## Thanks
 
