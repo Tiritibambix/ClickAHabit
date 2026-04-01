@@ -1,0 +1,99 @@
+{{ define "plan-edit.html" }}
+
+<body>
+    <div class="container-lg">
+        <br>
+    <div class="row">
+        <div class="col-md">
+        <div class="card border-primary">
+            <div class="card-header">
+                <h5>Add/Edit</h5>
+            </div>
+        <div class="card-body table-responsive">
+        <table class="table table-borderless">
+            <form action="/planedit/" method="post">
+                <input name="id" type="hidden" class="form-control" value="{{ .OnePlan.ID }}">
+                <tr>
+                    <td>Group</td>
+                    <td><input name="group" type="text" class="form-control" value="{{ .OnePlan.Group }}"></td>
+                </tr>
+                <tr>
+                    <td>Name</td>
+                    <td><input name="name" type="text" class="form-control" value="{{ .OnePlan.Name }}"></td>
+                </tr>
+                <tr>
+                    <td>Color</td>
+                    <td>
+                        <div class="gap-3 hstack">
+                            <input name="color" value="{{ .OnePlan.Color }}" type="color" class="form-control form-control-color">
+                            
+                            <div class="form-check form-switch" title="No Color">
+                            {{ if .OnePlan.NoColor }}
+                                <input name="nocolor" value="yes" class="form-check-input" type="checkbox" checked>
+                            {{ else }}
+                                <input name="nocolor" value="yes" class="form-check-input" type="checkbox">
+                            {{ end }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Icon</td>
+                    <td><input name="icon" type="text" class="form-control" value="{{ .OnePlan.Icon }}"></td>
+                </tr>
+                <tr>
+                    <td>Place</td>
+                    <td><input name="place" type="number" class="form-control" value="{{ .OnePlan.Place }}"></td>
+                </tr>
+                <tr>
+                    <td>Link</td>
+                    <td><input name="link" type="url" class="form-control" value="{{ .OnePlan.Link }}"></td>
+                </tr>
+                <tr>
+                    <td>Pause</td>
+                    <td>
+                        <div class="form-check form-switch">
+                        {{ if .OnePlan.Pause }}
+                            <input name="pause" value="yes" class="form-check-input" type="checkbox" checked>
+                        {{ else }}
+                            <input name="pause" value="yes" class="form-check-input" type="checkbox">
+                        {{ end }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Weekly</td>
+                    <td>
+                        <div class="form-check form-switch">
+                        {{ if .OnePlan.Weekly }}
+                            <input name="weekly" value="yes" class="form-check-input" type="checkbox" checked>
+                        {{ else }}
+                            <input name="weekly" value="yes" class="form-check-input" type="checkbox">
+                        {{ end }}
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><button type="submit" class="btn btn-primary">Save</button></td>
+                    <td></td>
+                </tr>
+            </form>
+        </table>
+        </div>
+        </div>
+        </div>
+        <div class="col-md">
+            <div class="card border-primary">
+                <div class="card-header">
+                    <h5>Icon preview</h5>
+                </div>
+            <div class="card-body table-responsive">
+                <img src="{{ .OnePlan.Icon }}" style="max-width: 100%;max-height: 100%;"/>
+            </div>
+        </div>
+    </div>
+    </div>
+        
+
+{{ template "footer.html" }}
+{{ end }}

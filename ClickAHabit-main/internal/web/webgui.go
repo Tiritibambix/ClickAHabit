@@ -58,8 +58,6 @@ func Gui(dirPath, nodePath string) {
 	router.GET("/plandel/:id", planDel)          // plan.go
 	router.GET("/stats/:tab/:id", statsHandler)  // stats.go
 	router.GET("/smore/:key", statsMore)         // stats-more.go
-	router.GET("/sdata/:key", statsData)         // stats-data.go
-	router.POST("/sdata-multi", statsMulti)      // stats-multi.go
 	router.GET("/update/:tab/:date", updatePlan) // update.go
 
 	router.POST("/config/", saveConfigHandler) // config.go

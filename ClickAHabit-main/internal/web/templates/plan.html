@@ -1,0 +1,53 @@
+{{ define "plan.html" }}
+
+<body>
+    <div class="container-lg mt-3">
+        <div class="card border-primary">
+            <div class="card-header">
+                <h5>Plan</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <th style="max-width: 1%;">Edit</th>
+                        <th>Pause</th>
+                        <th>Icon</th>
+                        <th>Color</th>
+                        <th>Weekly</th>
+                        <th>Group</th>
+                        <th>Name</th>
+                        <th>Place</th>
+                        <th style="max-width: 1%;">Del</th>
+                    </thead>
+                    <tbody>
+                        {{ range .Plans }}
+                        <tr>
+                            <td>
+                                <a href="/planedit/{{ .ID }}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
+                            <td>{{ if .Pause }}true{{ end }}</td>
+                            <td><img src="{{ .Icon }}" style="height:1.3em;"/></td>
+                            <td>
+                                <i class="bi bi-square-fill" style="color: {{ .Color }};"></i>
+                            </td>
+                            <td>{{ if .Weekly }}true{{ end }}</td>
+                            <td>{{ .Group }}</td>
+                            <td>{{ .Name }}</td>
+                            <td>{{ .Place }}</td>
+                            <td>
+                                <a href="/plandel/{{ .ID }}">
+                                    <i class="bi bi-x-square"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{{ template "footer.html" }}
+{{ end }}
