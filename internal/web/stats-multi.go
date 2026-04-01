@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/aceberg/ClickAHabit/internal/models"
 )
 
 // MultiRequest - list of keys sent by the client
@@ -11,21 +13,10 @@ type MultiRequest struct {
 	Keys []string `json:"keys"`
 }
 
-// MultiStatData - all individual stats + aggregated average
-type MultiStatData struct {
-	Stats  []StatData  `json:"Stats"`
-	Avg    Aggregated  `json:"Avg"`
-}
-
-// Aggregated - averaged data across all selected habits
-type AggregatedPoint struct {
-	Label string  `json:"Label"`
-	Avg   float64 `json:"Avg"` // mean of per-habit monthly averages (avg/active day)
-}
-
-type Aggregated struct {
-	MonthlyAvg []AggregatedPoint `json:"MonthlyAvg"`
-	YearlyAvg  []AggregatedPoint `json:"YearlyAvg"`
+// MultiResult - fused stat + heatmap
+type MultiResult struct {
+	Stat    StatData      `json:"Stat"`
+	HeatMap []HeatMapData `json:"HeatMap"`
 }
 
 func statsMulti(c *gin.Context) {
@@ -35,61 +26,39 @@ func statsMulti(c *gin.Context) {
 		return
 	}
 
-	var result MultiStatData
-
-	// Collect individual StatData for each key
-	// monthAvgs[label] = list of per-habit avg values for that month
-	monthAvgs := make(map[string][]float64)
-	yearAvgs  := make(map[string][]float64)
-	var monthOrder []string
-	var yearOrder  []string
-	seenMonths := make(map[string]bool)
-	seenYears  := make(map[string]bool)
+	// Merge all checks from selected habits into one fake stat
+	var merged models.Stat
+	merged.Name  = "Fusion"
+	merged.Group = ""
 
 	for _, key := range req.Keys {
 		stat, ok := statsMap[key]
 		if !ok {
 			continue
 		}
-		sd := buildStatData(stat)
-		result.Stats = append(result.Stats, sd)
-
-		for _, mp := range sd.MonthlyTotals {
-			monthAvgs[mp.Label] = append(monthAvgs[mp.Label], mp.Avg)
-			if !seenMonths[mp.Label] {
-				seenMonths[mp.Label] = true
-				monthOrder = append(monthOrder, mp.Label)
-			}
-		}
-		for _, yp := range sd.YearlyTotals {
-			yearAvgs[yp.Label] = append(yearAvgs[yp.Label], yp.Avg)
-			if !seenYears[yp.Label] {
-				seenYears[yp.Label] = true
-				yearOrder = append(yearOrder, yp.Label)
-			}
-		}
+		merged.Checks = append(merged.Checks, stat.Checks...)
+		merged.DTotal += stat.DTotal
+		merged.CTotal += stat.CTotal
 	}
 
-	// Sort month/year labels (already string-sortable: "2024-01", "2024")
-	sortStrings(monthOrder)
-	sortStrings(yearOrder)
-
-	for _, label := range monthOrder {
-		vals := monthAvgs[label]
-		result.Avg.MonthlyAvg = append(result.Avg.MonthlyAvg, AggregatedPoint{
-			Label: label,
-			Avg:   mean(vals),
-		})
-	}
-	for _, label := range yearOrder {
-		vals := yearAvgs[label]
-		result.Avg.YearlyAvg = append(result.Avg.YearlyAvg, AggregatedPoint{
-			Label: label,
-			Avg:   mean(vals),
-		})
+	result := MultiResult{
+		Stat:    buildStatData(merged),
+		HeatMap: generateHeatMap(merged.Checks),
 	}
 
 	c.IndentedJSON(http.StatusOK, result)
+}
+
+func sortStrings(s []string) {
+	for i := 1; i < len(s); i++ {
+		key := s[i]
+		j := i - 1
+		for j >= 0 && s[j] > key {
+			s[j+1] = s[j]
+			j--
+		}
+		s[j+1] = key
+	}
 }
 
 func mean(vals []float64) float64 {
@@ -101,17 +70,4 @@ func mean(vals []float64) float64 {
 		sum += v
 	}
 	return sum / float64(len(vals))
-}
-
-func sortStrings(s []string) {
-	// insertion sort — small slices, no import needed
-	for i := 1; i < len(s); i++ {
-		key := s[i]
-		j := i - 1
-		for j >= 0 && s[j] > key {
-			s[j+1] = s[j]
-			j--
-		}
-		s[j+1] = key
-	}
 }

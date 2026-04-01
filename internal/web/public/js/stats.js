@@ -8,17 +8,6 @@ let chartInstance = null;
 let selectedKeys   = new Set();
 let activeCmpChart = 'monthly';
 let cmpInstance    = null;
-let lastMultiData  = null;
-
-// ═══════════════════════════════════════════════════
-//  PALETTE  (distinct colours for multi-habit chart)
-// ═══════════════════════════════════════════════════
-const PALETTE = [
-    '#4e79a7','#f28e2b','#e15759','#76b7b2',
-    '#59a14f','#edc948','#b07aa1','#ff9da7',
-    '#9c755f','#bab0ac'
-];
-function paletteColor(i) { return PALETTE[i % PALETTE.length]; }
 
 // ═══════════════════════════════════════════════════
 //  CHECKBOX SELECTION
@@ -29,26 +18,25 @@ function onCheckChange() {
         selectedKeys.add(chk.dataset.key);
     });
 
-    const n = selectedKeys.size;
+    const n       = selectedKeys.size;
     const btnCmp  = document.getElementById('btnCompare');
     const btnClr  = document.getElementById('btnClearSel');
     const cnt     = document.getElementById('selCount');
 
     if (n >= 2) {
-        btnCmp.style.display  = '';
-        btnClr.style.display  = '';
-        cnt.textContent       = n + ' sélectionné' + (n > 1 ? 's' : '');
-        cnt.style.display     = '';
+        btnCmp.style.display = '';
+        btnClr.style.display = '';
+        cnt.textContent      = n + ' sélectionné' + (n > 1 ? 's' : '');
+        cnt.style.display    = '';
     } else {
-        btnCmp.style.display  = 'none';
+        btnCmp.style.display = 'none';
         if (n === 0) {
             btnClr.style.display = 'none';
             cnt.style.display    = 'none';
         }
     }
 
-    // Sync "select all" checkbox state
-    const total = document.querySelectorAll('.habit-chk').length;
+    const total  = document.querySelectorAll('.habit-chk').length;
     const chkAll = document.getElementById('chkAll');
     chkAll.checked       = n === total;
     chkAll.indeterminate = n > 0 && n < total;
@@ -77,8 +65,7 @@ async function getMore(key) {
 
     closeCompare();
 
-    // Heatmap
-    const heat  = await (await fetch('/smore/' + encodeURIComponent(key))).json();
+    const heat = await (await fetch('/smore/' + encodeURIComponent(key))).json();
     document.getElementById('statsHeader').innerHTML = key;
 
     if (window.myMatrix) { window.myMatrix.destroy(); window.myMatrix = null; }
@@ -92,7 +79,6 @@ async function getMore(key) {
         </div>`;
     makeChart(heat, getThemeColor('--bs-primary'));
 
-    // Enriched stats
     const resp = await fetch('/sdata/' + encodeURIComponent(key));
     if (!resp.ok) return;
     const data = await resp.json();
@@ -119,7 +105,7 @@ function closeSingle() {
 }
 
 // ═══════════════════════════════════════════════════
-//  MULTI-HABIT COMPARISON
+//  FUSION PANEL
 // ═══════════════════════════════════════════════════
 async function openCompare() {
     closeSingle();
@@ -127,8 +113,7 @@ async function openCompare() {
     const keys = Array.from(selectedKeys);
     if (keys.length < 2) return;
 
-    document.getElementById('compareHeader').textContent =
-        'Comparaison : ' + keys.join(', ');
+    document.getElementById('compareHeader').textContent = 'Fusion : ' + keys.join(', ');
     document.getElementById('panelCompare').style.display = '';
     document.getElementById('compareLoading').style.display = '';
 
@@ -139,18 +124,36 @@ async function openCompare() {
     });
 
     document.getElementById('compareLoading').style.display = 'none';
-
     if (!resp.ok) return;
-    lastMultiData = await resp.json();
 
-    renderCompare(lastMultiData, activeCmpChart);
+    const result = await resp.json();
+    const data   = result.Stat;
+    const heat   = result.HeatMap;
+
+    // KPIs fusionnés
+    renderKpisInto(data, 'fused');
+
+    // Heatmap fusionnée
+    if (window.myMatrixFused) { window.myMatrixFused.destroy(); window.myMatrixFused = null; }
+    const fusedHeatWrap = document.getElementById('fusedHeatmapWrap');
+    fusedHeatWrap.innerHTML = `
+        <div class="horiz-scroll">
+            <div style="max-height:150px;width:1200px;">
+                <canvas id="matrix-chart-fused" style="height:100%;width:100%;"></canvas>
+            </div>
+        </div>`;
+    const ctx2d = document.getElementById('matrix-chart-fused');
+    window.myMatrixFused = makeFusedChart(heat, ctx2d, getThemeColor('--bs-primary'));
+
+    // Charts
+    renderCmpChart(data, activeCmpChart);
 
     document.querySelectorAll('.cmp-tab').forEach(btn => {
         btn.onclick = () => {
             activeCmpChart = btn.dataset.cmp;
             document.querySelectorAll('.cmp-tab').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            renderCompare(lastMultiData, activeCmpChart);
+            renderCmpChart(data, activeCmpChart);
         };
     });
 }
@@ -158,97 +161,17 @@ async function openCompare() {
 function closeCompare() {
     document.getElementById('panelCompare').style.display = 'none';
     if (cmpInstance) { cmpInstance.destroy(); cmpInstance = null; }
+    if (window.myMatrixFused) { window.myMatrixFused.destroy(); window.myMatrixFused = null; }
 }
 
-function renderCompare(multi, type) {
+function renderCmpChart(data, type) {
     if (cmpInstance) { cmpInstance.destroy(); cmpInstance = null; }
-
     const canvas = document.getElementById('compare-chart');
     const ctx    = canvas.getContext('2d');
-    const textColor = getThemeColor('--bs-body-color') || '#aaa';
-
-    // Collect all labels across all habits + avg
-    const labelSet = new Set();
-    (multi.Stats || []).forEach(sd => {
-        const pts = type === 'monthly' ? sd.MonthlyTotals : sd.YearlyTotals;
-        (pts || []).forEach(p => labelSet.add(p.Label));
-    });
-    const avgPts = type === 'monthly'
-        ? (multi.Avg.MonthlyAvg || [])
-        : (multi.Avg.YearlyAvg  || []);
-    avgPts.forEach(p => labelSet.add(p.Label));
-
-    const labels = Array.from(labelSet).sort();
-
-    // Build index maps
-    function buildMap(pts) {
-        const m = {};
-        (pts || []).forEach(p => { m[p.Label] = p; });
-        return m;
-    }
-
-    const datasets = [];
-
-    // One line per habit (avg/active day)
-    (multi.Stats || []).forEach((sd, i) => {
-        const pts = type === 'monthly' ? sd.MonthlyTotals : sd.YearlyTotals;
-        const map = buildMap(pts);
-        const color = paletteColor(i);
-        datasets.push({
-            label:           sd.Group + ': ' + sd.Name,
-            data:            labels.map(l => map[l] ? parseFloat(map[l].Avg.toFixed(2)) : null),
-            borderColor:     color,
-            backgroundColor: hexAlpha(color, 0.08),
-            borderWidth:     2,
-            pointRadius:     3,
-            tension:         0.3,
-            spanGaps:        true,
-            type:            'line',
-            order:           i + 1,
-        });
-    });
-
-    // Aggregated average — thicker, dashed, white/black
-    const avgMap = {};
-    avgPts.forEach(p => { avgMap[p.Label] = p; });
-    datasets.push({
-        label:           'Moyenne globale',
-        data:            labels.map(l => avgMap[l] ? parseFloat(avgMap[l].Avg.toFixed(2)) : null),
-        borderColor:     textColor,
-        backgroundColor: hexAlpha(textColor, 0.05),
-        borderWidth:     3,
-        borderDash:      [6, 3],
-        pointRadius:     4,
-        tension:         0.3,
-        spanGaps:        true,
-        type:            'line',
-        order:           0,
-    });
-
-    cmpInstance = new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-                legend: { labels: { color: textColor } },
-            },
-            scales: {
-                x: {
-                    ticks: { color: textColor },
-                    grid:  { color: hexAlpha(textColor, 0.1) }
-                },
-                y: {
-                    title:       { display: true, text: 'Moy / jour actif', color: textColor },
-                    ticks:       { color: textColor },
-                    grid:        { color: hexAlpha(textColor, 0.1) },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
+    const primary   = getThemeColor('--bs-primary');
+    const secondary = getThemeColor('--bs-secondary');
+    if (type === 'monthly') renderMonthlyInto(ctx, data, primary, secondary, 'cmp');
+    else renderYearlyInto(ctx, data, primary, secondary, 'cmp');
 }
 
 // ═══════════════════════════════════════════════════
@@ -256,25 +179,27 @@ function renderCompare(multi, type) {
 // ═══════════════════════════════════════════════════
 function fmt(n) { return Number.isFinite(n) ? n.toFixed(2) : '—'; }
 
-function renderKpis(data) {
-    document.getElementById('kpi-dtotal').textContent    = data.DTotal ?? '—';
-    document.getElementById('kpi-ctotal').textContent    = data.CTotal ?? '—';
-    document.getElementById('kpi-avg-day').textContent   = fmt(data.AvgPerDay);
-    document.getElementById('kpi-avg-week').textContent  = fmt(data.AvgPerWeek);
-    document.getElementById('kpi-avg-month').textContent = fmt(data.AvgPerMonth);
-    document.getElementById('kpi-avg-year').textContent  = fmt(data.AvgPerYear);
+function renderKpis(data)              { renderKpisInto(data, 'single'); }
+function renderKpisInto(data, prefix) {
+    const s = prefix === 'single' ? '' : 'f-';
+    document.getElementById('kpi-' + s + 'dtotal').textContent    = data.DTotal ?? '—';
+    document.getElementById('kpi-' + s + 'ctotal').textContent    = data.CTotal ?? '—';
+    document.getElementById('kpi-' + s + 'avg-day').textContent   = fmt(data.AvgPerDay);
+    document.getElementById('kpi-' + s + 'avg-week').textContent  = fmt(data.AvgPerWeek);
+    document.getElementById('kpi-' + s + 'avg-month').textContent = fmt(data.AvgPerMonth);
+    document.getElementById('kpi-' + s + 'avg-year').textContent  = fmt(data.AvgPerYear);
 
     let bestMonth = null;
     if (data.MonthlyTotals && data.MonthlyTotals.length)
         bestMonth = data.MonthlyTotals.reduce((a, b) => b.Count > a.Count ? b : a);
-    document.getElementById('kpi-best-month').textContent =
+    document.getElementById('kpi-' + s + 'best-month').textContent =
         bestMonth ? bestMonth.Label + ' (' + bestMonth.Count + ')' : '—';
 
     const dow = data.DowCounts;
     let bestDow = null, bestDowVal = -1;
     if (dow) for (const [k, v] of Object.entries(dow))
         if (v > bestDowVal) { bestDowVal = v; bestDow = k; }
-    document.getElementById('kpi-best-dow').textContent =
+    document.getElementById('kpi-' + s + 'best-dow').textContent =
         bestDow ? bestDow + ' (' + bestDowVal + ')' : '—';
 }
 
@@ -292,15 +217,14 @@ function renderChart(data, type) {
     const ctx       = document.getElementById('main-chart').getContext('2d');
     const primary   = getThemeColor('--bs-primary');
     const secondary = getThemeColor('--bs-secondary');
-
-    if (type === 'monthly') renderMonthly(ctx, data, primary, secondary);
-    else if (type === 'yearly') renderYearly(ctx, data, primary, secondary);
-    else if (type === 'dow')    renderDow(ctx, data, primary, secondary);
+    if (type === 'monthly')      renderMonthlyInto(ctx, data, primary, secondary, 'single');
+    else if (type === 'yearly')  renderYearlyInto(ctx, data, primary, secondary, 'single');
+    else if (type === 'dow')     renderDow(ctx, data, primary, secondary);
 }
 
-function renderMonthly(ctx, data, primary, secondary) {
+function renderMonthlyInto(ctx, data, primary, secondary, target) {
     const points = data.MonthlyTotals || [];
-    chartInstance = new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: points.map(p => p.Label),
@@ -324,11 +248,13 @@ function renderMonthly(ctx, data, primary, secondary) {
         },
         options: chartOptions('Total', 'Moy/jour actif')
     });
+    if (target === 'single') chartInstance = chart;
+    else cmpInstance = chart;
 }
 
-function renderYearly(ctx, data, primary, secondary) {
+function renderYearlyInto(ctx, data, primary, secondary, target) {
     const points = data.YearlyTotals || [];
-    chartInstance = new Chart(ctx, {
+    const chart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: points.map(p => p.Label),
@@ -352,6 +278,8 @@ function renderYearly(ctx, data, primary, secondary) {
         },
         options: chartOptions('Total', 'Moy/jour actif')
     });
+    if (target === 'single') chartInstance = chart;
+    else cmpInstance = chart;
 }
 
 function renderDow(ctx, data, primary, secondary) {
@@ -401,6 +329,56 @@ function chartOptions(y1Label, y2Label) {
                   ticks: { color: textColor }, grid: { drawOnChartArea: false }, beginAtZero: true }
         }
     };
+}
+
+// ═══════════════════════════════════════════════════
+//  FUSED HEATMAP (reuse heatmap.js logic on a different canvas)
+// ═══════════════════════════════════════════════════
+function makeFusedChart(heat, canvasEl, hcolor) {
+    const ldata = heat.map(v => ({ x: v.X, y: v.Y, d: v.D, v: v.V }));
+    const ctx = canvasEl.getContext('2d');
+    return new Chart(ctx, {
+        type: 'matrix',
+        data: {
+            datasets: [{
+                label: 'Heatmap',
+                data: ldata,
+                backgroundColor(context) {
+                    const value = context.dataset.data[context.dataIndex].v;
+                    return Chart.helpers.color(hcolor).alpha(2 * value / 3).rgbString();
+                },
+                borderColor(context) {
+                    return Chart.helpers.color('grey').alpha(0.5).rgbString();
+                },
+                borderWidth: 1,
+                hoverBackgroundColor: 'lightgrey',
+                hoverBorderColor: 'grey',
+                width() { return 20; },
+                height() { return 20; }
+            }]
+        },
+        options: {
+            plugins: {
+                legend: false,
+                tooltip: {
+                    callbacks: {
+                        title() { return ''; },
+                        label(context) {
+                            const v = context.dataset.data[context.dataIndex];
+                            return [v.v, v.d];
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { type: 'category', offset: true, ticks: { display: false },
+                     border: { display: false }, grid: { display: false } },
+                y: { type: 'category', labels: ['Mo','Tu','We','Th','Fr','Sa','Su'],
+                     ticks: { stepSize: 1, display: true },
+                     border: { display: false }, grid: { display: false } }
+            }
+        }
+    });
 }
 
 // ═══════════════════════════════════════════════════
