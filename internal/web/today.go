@@ -22,7 +22,6 @@ func setTodayChecks() {
 }
 
 func setChecksForDate(date string) (todayChecks []models.Check) {
-	var changedDB bool
 	var check models.Check
 
 	todayChecks = selectChecksByDate("checks", date)
@@ -32,16 +31,13 @@ func setChecksForDate(date string) (todayChecks []models.Check) {
 			check = copyPlan(plan)
 			check.Date = date
 
-			todayChecks = append(todayChecks, check)
 			db.Insert(appConfig.DBPath, "checks", check)
-			changedDB = true
 		}
 	}
 
-	if changedDB {
-		allChecks = db.Select(appConfig.DBPath, "checks")
-		todayChecks = selectChecksByDate("checks", date)
-	}
+	// Always reload from DB so IDs are correct
+	allChecks = db.Select(appConfig.DBPath, "checks")
+	todayChecks = selectChecksByDate("checks", date)
 
 	return todayChecks
 }
