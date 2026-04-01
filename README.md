@@ -107,7 +107,7 @@ Or use [docker-compose](docker-compose-local.yml)
 
 - Replaced deprecated `c-py/action-dotenv-to-setenv` with a native shell step
 - Updated all actions to current versions
-- Simplified to `latest` tag, amd64 only
+- Simplified to `latest` tag
 
 ## Thanks
 
