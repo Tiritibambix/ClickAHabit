@@ -9,6 +9,7 @@ import (
 )
 
 func setWeeklyForDate(date string) (wChecks []models.Check) {
+	var changedDB bool
 	var check models.Check
 
 	wChecks = selectChecksByDate("weeks", date)
@@ -18,12 +19,15 @@ func setWeeklyForDate(date string) (wChecks []models.Check) {
 			check = copyPlan(plan)
 			check.Date = date
 			check.Count = weekCount(check)
+			wChecks = append(wChecks, check)
 			db.Insert(appConfig.DBPath, "weeks", check)
+			changedDB = true
 		}
 	}
 
-	// Always reload from DB so IDs are correct
-	wChecks = selectChecksByDate("weeks", date)
+	if changedDB {
+		wChecks = selectChecksByDate("weeks", date)
+	}
 
 	return wChecks
 }
