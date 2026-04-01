@@ -16,17 +16,20 @@ func updatePlan(c *gin.Context) {
 
 	mu.Lock()
 
-	tab := c.Param("tab")
+	tab  := c.Param("tab")
 	date := c.Param("date")
-	if tab == "checks" {
-		setChecksForDate(date) // today.go
-	} else {
-		setWeeklyForDate(date) // weeks.go
+	today := setToday()
+
+	// Only initialise checks for today, never rewrite past dates
+	if date == today {
+		if tab == "checks" {
+			setChecksForDate(date) // today.go
+		} else {
+			setWeeklyForDate(date) // weeks.go
+		}
 	}
 
 	mu.Unlock()
-
-	// log.Println("UPD DATE:", date)
 
 	c.IndentedJSON(http.StatusOK, resp)
 }

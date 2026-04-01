@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -23,15 +24,33 @@ func Gui(dirPath, nodePath string) {
 
 	appConfig.DirPath = dirPath
 	appConfig.DBPath = dirPath + "/sqlite.db"
-	check.Path(appConfig.DBPath)
 	appConfig.ConfPath = confPath
 	appConfig.NodePath = nodePath
+
+	// Migrate sqlite1.db -> sqlite.db if needed
+	oldDB := dirPath + "/sqlite1.db"
+	_, errNew := os.Stat(appConfig.DBPath)
+	_, errOld := os.Stat(oldDB)
+	if errOld == nil && errNew != nil {
+		// sqlite.db does not exist but sqlite1.db does: copy it
+		log.Println("INFO: migrating sqlite1.db to sqlite.db")
+		data, err := os.ReadFile(oldDB)
+		if err == nil {
+			err = os.WriteFile(appConfig.DBPath, data, 0644)
+			if err != nil {
+				log.Println("ERROR: migration failed:", err)
+			} else {
+				log.Println("INFO: migration done")
+			}
+		}
+	}
+
+	check.Path(appConfig.DBPath)
 
 	log.Println("INFO: starting web gui with config", appConfig.ConfPath)
 
 	db.Create(appConfig.DBPath)
 	allChecks = db.Select(appConfig.DBPath, "checks")
-	// allWeeks = db.Select(appConfig.DBPath, "weeks")
 	allPlans = yaml.Read(appConfig.DirPath + "/plan.yaml")
 
 	address := appConfig.Host + ":" + appConfig.Port
