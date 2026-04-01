@@ -1,73 +1,62 @@
 {{ define "config.html" }}
 
 <body>
-    <div class="container-lg">
-        <br>
-    <div class="row">
-        <div class="col-md">
-        <div class="card border-primary">
-            <div class="card-header">Config</div>
-        <div class="card-body table-responsive">
-        <table class="table table-borderless">
-            <form action="/config/" method="post">
-                <tr>
-                    <td>Host</td>
-                    <td><input name="host" type="text" class="form-control" value="{{ .Config.Host }}"></td>
-                </tr>
-                <tr>
-                    <td>Port</td>
-                    <td><input name="port" type="text" class="form-control" value="{{ .Config.Port }}"></td>
-                </tr>
-                <tr>
-                    <td>Theme</td>
-                    <td><select name="theme" class="form-select">
-                        <option selected>{{ .Config.Theme }}</option>
-                        {{ range .Themes }}
-                            <option value="{{ . }}">{{ . }}</option>
-                        {{ end }}
-                    </select></td>
-                </tr>
-                <tr>
-                    <td>Color mode</td>
-                    <td><select name="color" class="form-select">
-                        <option selected>{{ .Config.Color }}</option>
-                        <option value="light">light</option>
-                        <option value="dark">dark</option>
-                    </select></td>
-                </tr>
-                <tr>
-                    <td>Button width</td>
-                    <td><input name="btnwidth" type="text" class="form-control" value="{{ .Config.BtnWidth }}"></td>
-                </tr>
-                <tr>
-                    <td><button type="submit" class="btn btn-primary">Save</button></td>
-                    <td></td>
-                </tr>
-            </form>
-        </table>
-        </div>
-        </div>
-        </div>
-        <div class="col-md">
+    <div class="container-lg mt-4">
+    <div class="row g-3">
+        <div class="col-md-6">
             <div class="card border-primary">
-                <div class="card-header">Version</div>
+                <div class="card-header fw-semibold">Configuration</div>
                 <div class="card-body">
-                    <a href="https://github.com/aceberg/ClickAHabit/releases/tag/{{ .Version }}" target="_blank">{{ .Version }}</a>
+                    <form action="/config/" method="post">
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label text-muted small">Host</label>
+                            <div class="col-sm-8"><input name="host" type="text" class="form-control form-control-sm" value="{{ .Config.Host }}"></div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label text-muted small">Port</label>
+                            <div class="col-sm-8"><input name="port" type="text" class="form-control form-control-sm" value="{{ .Config.Port }}"></div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label text-muted small">Theme</label>
+                            <div class="col-sm-8">
+                                <select name="theme" class="form-select form-select-sm">
+                                    <option selected>{{ .Config.Theme }}</option>
+                                    {{ range .Themes }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                    {{ end }}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label text-muted small">Color mode</label>
+                            <div class="col-sm-8">
+                                <select name="color" class="form-select form-select-sm">
+                                    <option selected>{{ .Config.Color }}</option>
+                                    <option value="light">light</option>
+                                    <option value="dark">dark</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-4 row align-items-center">
+                            <label class="col-sm-4 col-form-label text-muted small">Button width</label>
+                            <div class="col-sm-8"><input name="btnwidth" type="text" class="form-control form-control-sm" value="{{ .Config.BtnWidth }}"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">Save</button>
+                    </form>
                 </div>
             </div>
-            <br>
-            <div class="card border-primary">
-                <div class="card-header">About</div>
-            <div class="card-body">
-                <p>● After changing <b>Host</b> or <b>Port</b> the app must be restarted</p>
-                <p>● <b>Button Width</b> can be set in <b>px</b> or <b>em</b> to adjust buttons to theme. Example: 180px</p>
-                <p>● Please, check out my other apps on <a href="https://github.com/aceberg" target="_blank">GitHub</a></p>
-                <p>● Want your own Self-Hosted app written in Go? Contact and prices <a href="https://github.com/aceberg" target="_blank">here</a></p>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-secondary">
+                <div class="card-header fw-semibold">About</div>
+                <div class="card-body small text-muted">
+                    <p>After changing <strong>Host</strong> or <strong>Port</strong> the app must be restarted.</p>
+                    <p><strong>Button Width</strong> can be set in <code>px</code> or <code>em</code>. Example: <code>180px</code></p>
+                </div>
             </div>
         </div>
     </div>
     </div>
-        
 
 {{ template "footer.html" }}
 {{ end }}

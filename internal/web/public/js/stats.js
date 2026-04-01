@@ -77,9 +77,9 @@ async function getMore(key) {
                 <canvas id="matrix-chart" style="height:100%;width:100%;"></canvas>
             </div>
         </div>`;
-    requestAnimationFrame(() => {
+    setTimeout(() => {
         makeChart(heat, getThemeColor('--bs-primary'));
-    });
+    }, 50);
 
     const resp = await fetch('/sdata/' + encodeURIComponent(key));
     if (!resp.ok) return;
