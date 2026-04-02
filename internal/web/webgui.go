@@ -48,6 +48,7 @@ func Gui(dirPath, nodePath string) {
 	log.Println("INFO: starting web gui with config", appConfig.ConfPath)
 
 	db.Create(appConfig.DBPath)
+	db.Migrate(appConfig.DBPath)
 	allChecks = db.Select(appConfig.DBPath, "checks")
 	allPlans = yaml.Read(appConfig.DirPath + "/plan.yaml")
 

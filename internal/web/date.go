@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
-	// "github.com/aceberg/ClickAHabit/internal/models"
 )
 
 func dateHandler(c *gin.Context) {
@@ -19,6 +18,16 @@ func dateHandler(c *gin.Context) {
 	}
 
 	checks := selectChecksByDate(tab, date)
+
+	// Enrich with HasCost from plan
+	for i, c := range checks {
+		for _, p := range allPlans {
+			if p.Name == c.Name && p.Group == c.Group {
+				checks[i].HasCost = p.HasCost
+				break
+			}
+		}
+	}
 
 	// Sort by Name
 	sort.Slice(checks, func(i, j int) bool {

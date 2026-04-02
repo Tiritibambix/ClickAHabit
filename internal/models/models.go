@@ -25,19 +25,22 @@ type Plan struct {
 	Link    string `yaml:"link,omitempty"`
 	Pause   bool   `yaml:"pause,omitempty"`
 	Weekly  bool   `yaml:"weekly,omitempty"`
+	HasCost bool   `yaml:"hascost,omitempty"`
 }
 
 // Check - check for DB
 type Check struct {
-	ID    int    `db:"ID"`
-	Date  string `db:"DATE"`
-	Name  string `db:"NAME"`
-	Group string `db:"GR"`
-	Color string `db:"COLOR"`
-	Icon  string `db:"ICON"`
-	Place int    `db:"PLACE"`
-	Count int    `db:"COUNT"`
-	Link  string `db:"LINK"`
+	ID      int     `db:"ID"`
+	Date    string  `db:"DATE"`
+	Name    string  `db:"NAME"`
+	Group   string  `db:"GR"`
+	Color   string  `db:"COLOR"`
+	Icon    string  `db:"ICON"`
+	Place   int     `db:"PLACE"`
+	Count   int     `db:"COUNT"`
+	Link    string  `db:"LINK"`
+	Cost    float64 `db:"COST"`
+	HasCost bool    `db:"-" json:"HasCost"`
 }
 
 // Stat - statistic

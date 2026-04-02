@@ -129,6 +129,51 @@
                             </div>
                         </div>
                     </div>
+                    <!-- KPI coûts (masqué si TotalCost == 0) -->
+                    <div class="row g-2 mb-3" id="kpi-cost-section" style="display:none;">
+                        <div class="col-12"><small class="text-muted">Coûts</small></div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Total dépensé</div>
+                                    <div class="fw-bold fs-5" id="kpi-total-cost">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / jour</div>
+                                    <div class="fw-bold fs-5" id="kpi-avg-cost-day">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / semaine</div>
+                                    <div class="fw-bold fs-5" id="kpi-avg-cost-week">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / mois</div>
+                                    <div class="fw-bold fs-5" id="kpi-avg-cost-month">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / an</div>
+                                    <div class="fw-bold fs-5" id="kpi-avg-cost-year">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="heatmapWrap" class="mb-3"></div>
                     <div class="btn-group mb-3" role="group">
                         <button class="btn btn-sm btn-outline-primary chart-tab active" data-chart="monthly">Par mois</button>
@@ -217,6 +262,51 @@
                                 <div class="card-body py-2 px-1">
                                     <div class="small text-muted">Meilleur jour</div>
                                     <div class="fw-bold fs-5" id="kpi-f-best-dow">—</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI coûts fusionnés (masqué si TotalCost == 0) -->
+                    <div class="row g-2 mb-3" id="kpi-f-cost-section" style="display:none;">
+                        <div class="col-12"><small class="text-muted">Coûts</small></div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Total dépensé</div>
+                                    <div class="fw-bold fs-5" id="kpi-f-total-cost">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / jour</div>
+                                    <div class="fw-bold fs-5" id="kpi-f-avg-cost-day">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / semaine</div>
+                                    <div class="fw-bold fs-5" id="kpi-f-avg-cost-week">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / mois</div>
+                                    <div class="fw-bold fs-5" id="kpi-f-avg-cost-month">—</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-4 col-md-2">
+                            <div class="card text-center border-secondary h-100">
+                                <div class="card-body py-2 px-1">
+                                    <div class="small text-muted">Moy coût / an</div>
+                                    <div class="fw-bold fs-5" id="kpi-f-avg-cost-year">—</div>
                                 </div>
                             </div>
                         </div>

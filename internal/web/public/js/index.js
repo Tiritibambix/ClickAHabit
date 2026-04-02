@@ -1,5 +1,7 @@
 var layout;
 var tabname;
+var checksData = [];
+var pendingCostId = null;
 
 function setToday() {
     let today = new Date().toLocaleDateString('en-CA');
@@ -44,6 +46,7 @@ async function createView(date) {
 
     checks = await (await fetch(url)).json();
     if (checks) {
+        checksData = checks;
         groupMap = getGroupMap(checks);
 
         groupMap.forEach (function(value, key) {
@@ -96,9 +99,20 @@ function genHTML(gr, checks) {
 }
 
 async function addOne(id) {
-    let resp = '';
+    const check = checksData.find(c => c.ID === id);
+    if (check && check.HasCost) {
+        pendingCostId = id;
+        document.getElementById('costInput').value = '';
+        new bootstrap.Modal(document.getElementById('costModal')).show();
+        return;
+    }
+    await doAdd(id, 0);
+}
+
+async function doAdd(id, cost) {
     let url = '/add/'+tabname+'/'+id;
-    resp = await (await fetch(url)).json();
+    if (cost > 0) url += '?cost=' + cost;
+    const resp = await (await fetch(url)).json();
 
     document.getElementById('count'+id).innerHTML = resp;
 
@@ -109,6 +123,21 @@ async function addOne(id) {
         document.getElementById('count'+id).classList.add('btn-primary');
     }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('costConfirm').addEventListener('click', async function () {
+        const costVal = parseFloat(document.getElementById('costInput').value) || 0;
+        bootstrap.Modal.getInstance(document.getElementById('costModal')).hide();
+        if (pendingCostId !== null) {
+            const id = pendingCostId;
+            pendingCostId = null;
+            await doAdd(id, costVal);
+        }
+    });
+    document.getElementById('costModal').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') document.getElementById('costConfirm').click();
+    });
+});
 
 function setFormDate(where) {
     dateStr = document.getElementById('realDate').value;

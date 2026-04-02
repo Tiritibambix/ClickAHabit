@@ -15,12 +15,16 @@ func addHandler(c *gin.Context) {
 	tab := c.Param("tab")
 	idStr = c.Param("id")
 	ID, err := strconv.Atoi(idStr)
+
+	cost, _ := strconv.ParseFloat(c.Query("cost"), 64)
+
 	allChecks = db.Select(appConfig.DBPath, tab)
 
 	if err == nil {
 		for _, check := range allChecks {
 			if ID == check.ID {
 				check.Count = check.Count + 1
+				check.Cost = check.Cost + cost
 				resp = check.Count
 				db.Update(appConfig.DBPath, tab, check, check.ID)
 				break

@@ -18,7 +18,8 @@ func Create(path string) {
 		"ICON"		TEXT,
 		"PLACE"		INTEGER,
 		"COUNT"		INTEGER,
-		"LINK" 		TEXT
+		"LINK" 		TEXT,
+		"COST"		REAL DEFAULT 0
 	);`
 	exec(path, sqlStatement)
 
@@ -31,7 +32,8 @@ func Create(path string) {
 		"ICON"		TEXT,
 		"PLACE"		INTEGER,
 		"COUNT"		INTEGER,
-		"LINK" 		TEXT
+		"LINK" 		TEXT,
+		"COST"		REAL DEFAULT 0
 	);`
 	exec(path, sqlStatement)
 }
@@ -39,13 +41,13 @@ func Create(path string) {
 // Insert - insert into DB
 func Insert(path string, tabname string, check models.Check) {
 
-	sqlStatement := `INSERT INTO '%s' (DATE, NAME, GR, COLOR, ICON, PLACE, COUNT, LINK)
-	VALUES ('%s','%s','%s','%s','%s','%d','%d','%s');`
+	sqlStatement := `INSERT INTO '%s' (DATE, NAME, GR, COLOR, ICON, PLACE, COUNT, LINK, COST)
+	VALUES ('%s','%s','%s','%s','%s','%d','%d','%s','%f');`
 
 	check.Group = quoteStr(check.Group)
 	check.Name = quoteStr(check.Name)
 
-	sqlStatement = fmt.Sprintf(sqlStatement, tabname, check.Date, check.Name, check.Group, check.Color, check.Icon, check.Place, check.Count, check.Link)
+	sqlStatement = fmt.Sprintf(sqlStatement, tabname, check.Date, check.Name, check.Group, check.Color, check.Icon, check.Place, check.Count, check.Link, check.Cost)
 
 	exec(path, sqlStatement)
 }
@@ -53,12 +55,12 @@ func Insert(path string, tabname string, check models.Check) {
 // Update - update DB
 func Update(path string, tabname string, check models.Check, id int) {
 
-	sqlStatement := `UPDATE '%s' SET DATE='%s', NAME='%s', GR='%s', COLOR='%s', ICON='%s', PLACE='%d', COUNT='%d', LINK='%s' WHERE ID='%d';`
+	sqlStatement := `UPDATE '%s' SET DATE='%s', NAME='%s', GR='%s', COLOR='%s', ICON='%s', PLACE='%d', COUNT='%d', LINK='%s', COST='%f' WHERE ID='%d';`
 
 	check.Group = quoteStr(check.Group)
 	check.Name = quoteStr(check.Name)
 
-	sqlStatement = fmt.Sprintf(sqlStatement, tabname, check.Date, check.Name, check.Group, check.Color, check.Icon, check.Place, check.Count, check.Link, id)
+	sqlStatement = fmt.Sprintf(sqlStatement, tabname, check.Date, check.Name, check.Group, check.Color, check.Icon, check.Place, check.Count, check.Link, check.Cost, id)
 
 	exec(path, sqlStatement)
 }

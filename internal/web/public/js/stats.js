@@ -180,6 +180,7 @@ function renderCmpChart(data, type) {
 //  KPI CARDS
 // ═══════════════════════════════════════════════════
 function fmt(n) { return Number.isFinite(n) ? n.toFixed(2) : '—'; }
+function fmtCost(n) { return Number.isFinite(n) && n > 0 ? n.toFixed(2) + ' €' : '—'; }
 
 function renderKpis(data)              { renderKpisInto(data, 'single'); }
 function renderKpisInto(data, prefix) {
@@ -203,6 +204,19 @@ function renderKpisInto(data, prefix) {
         if (v > bestDowVal) { bestDowVal = v; bestDow = k; }
     document.getElementById('kpi-' + s + 'best-dow').textContent =
         bestDow ? bestDow + ' (' + bestDowVal + ')' : '—';
+
+    // Cost KPIs
+    const costSection = document.getElementById('kpi-' + s + 'cost-section');
+    if (data.TotalCost && data.TotalCost > 0) {
+        costSection.style.display = '';
+        document.getElementById('kpi-' + s + 'total-cost').textContent     = data.TotalCost.toFixed(2) + ' €';
+        document.getElementById('kpi-' + s + 'avg-cost-day').textContent   = fmtCost(data.AvgCostPerDay);
+        document.getElementById('kpi-' + s + 'avg-cost-week').textContent  = fmtCost(data.AvgCostPerWeek);
+        document.getElementById('kpi-' + s + 'avg-cost-month').textContent = fmtCost(data.AvgCostPerMonth);
+        document.getElementById('kpi-' + s + 'avg-cost-year').textContent  = fmtCost(data.AvgCostPerYear);
+    } else {
+        costSection.style.display = 'none';
+    }
 }
 
 // ═══════════════════════════════════════════════════

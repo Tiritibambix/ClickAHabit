@@ -13,18 +13,23 @@ import (
 
 // StatData - enriched statistics returned as JSON
 type StatData struct {
-	Name          string
-	Group         string
-	DTotal        int
-	CTotal        int
-	AvgPerDay     float64
-	AvgPerWeek    float64
-	AvgPerMonth   float64
-	AvgPerYear    float64
-	DowCounts     map[string]int
-	DowDays       map[string]int
-	MonthlyTotals []MonthPoint
-	YearlyTotals  []YearPoint
+	Name            string
+	Group           string
+	DTotal          int
+	CTotal          int
+	AvgPerDay       float64
+	AvgPerWeek      float64
+	AvgPerMonth     float64
+	AvgPerYear      float64
+	DowCounts       map[string]int
+	DowDays         map[string]int
+	MonthlyTotals   []MonthPoint
+	YearlyTotals    []YearPoint
+	TotalCost       float64
+	AvgCostPerDay   float64
+	AvgCostPerWeek  float64
+	AvgCostPerMonth float64
+	AvgCostPerYear  float64
 }
 
 // MonthPoint - one month data point
@@ -77,6 +82,8 @@ func buildStatData(stat models.Stat) StatData {
 	// Track first and last date for period calculation
 	var firstDate, lastDate time.Time
 
+	var totalCost float64
+
 	for _, check := range stat.Checks {
 		t, err := time.Parse("2006-01-02", check.Date)
 		if err != nil {
@@ -100,6 +107,7 @@ func buildStatData(stat models.Stat) StatData {
 		monthCounts[month] += check.Count
 		yearCounts[year]   += check.Count
 		weekCounts[week]   += check.Count
+		totalCost          += check.Cost
 
 		if !trackedDays[check.Date] {
 			trackedDays[check.Date] = true
@@ -108,6 +116,8 @@ func buildStatData(stat models.Stat) StatData {
 			yearDays[year]++
 		}
 	}
+
+	data.TotalCost = totalCost
 
 	data.DowCounts = dowCounts
 	data.DowDays   = dowDays
@@ -121,7 +131,8 @@ func buildStatData(stat models.Stat) StatData {
 
 		totalDays := int(lastDate.Sub(firstDate).Hours()/24) + 1
 		if totalDays > 0 {
-			data.AvgPerDay = float64(stat.CTotal) / float64(totalDays)
+			data.AvgPerDay     = float64(stat.CTotal) / float64(totalDays)
+			data.AvgCostPerDay = totalCost / float64(totalDays)
 		}
 
 		totalWeeks := totalDays / 7
@@ -129,19 +140,22 @@ func buildStatData(stat models.Stat) StatData {
 			totalWeeks++
 		}
 		if totalWeeks > 0 {
-			data.AvgPerWeek = float64(stat.CTotal) / float64(totalWeeks)
+			data.AvgPerWeek     = float64(stat.CTotal) / float64(totalWeeks)
+			data.AvgCostPerWeek = totalCost / float64(totalWeeks)
 		}
 
 		// Months spanned
 		months := (lastDate.Year()-firstDate.Year())*12 + int(lastDate.Month()) - int(firstDate.Month()) + 1
 		if months > 0 {
-			data.AvgPerMonth = float64(stat.CTotal) / float64(months)
+			data.AvgPerMonth     = float64(stat.CTotal) / float64(months)
+			data.AvgCostPerMonth = totalCost / float64(months)
 		}
 
 		// Years spanned
 		years := lastDate.Year() - firstDate.Year() + 1
 		if years > 0 {
-			data.AvgPerYear = float64(stat.CTotal) / float64(years)
+			data.AvgPerYear     = float64(stat.CTotal) / float64(years)
+			data.AvgCostPerYear = totalCost / float64(years)
 		}
 	}
 
