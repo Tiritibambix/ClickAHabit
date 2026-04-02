@@ -26,7 +26,7 @@ function onCheckChange() {
     if (n >= 2) {
         btnCmp.style.display = '';
         btnClr.style.display = '';
-        cnt.textContent      = n + ' sélectionné' + (n > 1 ? 's' : '');
+        cnt.textContent      = n + ' selected';
         cnt.style.display    = '';
     } else {
         btnCmp.style.display = 'none';
@@ -247,14 +247,14 @@ function renderMonthlyInto(ctx, data, primary, secondary, target) {
             labels: points.map(p => p.Label),
             datasets: [
                 {
-                    label: 'Total / mois',
+                    label: 'Total / month',
                     data:  points.map(p => p.Count),
                     backgroundColor: hexAlpha(primary, 0.7),
                     borderColor: primary, borderWidth: 1,
                     yAxisID: 'y', order: 2,
                 },
                 {
-                    label: 'Moy / jour actif',
+                    label: 'Avg / active day',
                     data:  points.map(p => parseFloat(p.Avg.toFixed(2))),
                     type: 'line', borderColor: secondary,
                     backgroundColor: hexAlpha(secondary, 0.15),
@@ -263,7 +263,7 @@ function renderMonthlyInto(ctx, data, primary, secondary, target) {
                 }
             ]
         },
-        options: chartOptions('Total', 'Moy/jour actif')
+        options: chartOptions('Total', 'Avg/active day')
     });
     if (target === 'single') chartInstance = chart;
     else cmpInstance = chart;
@@ -277,14 +277,14 @@ function renderYearlyInto(ctx, data, primary, secondary, target) {
             labels: points.map(p => p.Label),
             datasets: [
                 {
-                    label: 'Total / an',
+                    label: 'Total / year',
                     data:  points.map(p => p.Count),
                     backgroundColor: hexAlpha(primary, 0.7),
                     borderColor: primary, borderWidth: 1,
                     yAxisID: 'y', order: 2,
                 },
                 {
-                    label: 'Moy / jour actif',
+                    label: 'Avg / active day',
                     data:  points.map(p => parseFloat(p.Avg.toFixed(2))),
                     type: 'line', borderColor: secondary,
                     backgroundColor: hexAlpha(secondary, 0.15),
@@ -293,7 +293,7 @@ function renderYearlyInto(ctx, data, primary, secondary, target) {
                 }
             ]
         },
-        options: chartOptions('Total', 'Moy/jour actif')
+        options: chartOptions('Total', 'Avg/active day')
     });
     if (target === 'single') chartInstance = chart;
     else cmpInstance = chart;
@@ -315,7 +315,7 @@ function renderDow(ctx, data, primary, secondary) {
                     yAxisID: 'y', order: 2,
                 },
                 {
-                    label: 'Moy / jour actif',
+                    label: 'Avg / active day',
                     data:  DOW_ORDER.map(d => {
                         const c = counts[d] || 0, dd = days[d] || 0;
                         return dd > 0 ? parseFloat((c/dd).toFixed(2)) : 0;
@@ -327,7 +327,7 @@ function renderDow(ctx, data, primary, secondary) {
                 }
             ]
         },
-        options: chartOptions('Total', 'Moy/jour actif')
+        options: chartOptions('Total', 'Avg/active day')
     });
 }
 

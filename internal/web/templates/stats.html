@@ -13,10 +13,10 @@
                     <div class="d-flex gap-2 align-items-center">
                         <span id="selCount" class="text-muted small" style="display:none;"></span>
                         <button id="btnCompare" class="btn btn-sm btn-primary" style="display:none;" onclick="openCompare()">
-                            Fusionner la sélection
+                            Merge selection
                         </button>
                         <button id="btnClearSel" class="btn btn-sm btn-outline-secondary" style="display:none;" onclick="clearSelection()">
-                            Tout désélectionner
+                            Deselect all
                         </button>
                     </div>
                 </div>
@@ -24,7 +24,7 @@
                     <table class="table table-striped table-hover mb-0">
                         <thead>
                             <tr>
-                                <th style="width:1%;"><input type="checkbox" id="chkAll" onchange="toggleAll(this)" title="Tout sélectionner"></th>
+                                <th style="width:1%;"><input type="checkbox" id="chkAll" onchange="toggleAll(this)" title="Select all"></th>
                                 <th>Group</th>
                                 <th>Name</th>
                                 <th>Days Total</th>
@@ -43,7 +43,7 @@
                                 <td>{{ .DTotal }}</td>
                                 <td>{{ .CTotal }}</td>
                                 <td style="cursor:pointer;" onclick="getMore('{{ $key }}')">
-                                    <small class="text-primary">Voir stats</small>
+                                    <small class="text-primary">View stats</small>
                                 </td>
                             </tr>
                             {{ end }}
@@ -67,7 +67,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Jours actifs</div>
+                                    <div class="small text-muted">Active days</div>
                                     <div class="fw-bold fs-5" id="kpi-dtotal">—</div>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / jour</div>
+                                    <div class="small text-muted">Avg / day</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-day">—</div>
                                 </div>
                             </div>
@@ -91,7 +91,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / semaine</div>
+                                    <div class="small text-muted">Avg / week</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-week">—</div>
                                 </div>
                             </div>
@@ -99,7 +99,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / mois</div>
+                                    <div class="small text-muted">Avg / month</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-month">—</div>
                                 </div>
                             </div>
@@ -107,7 +107,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / an</div>
+                                    <div class="small text-muted">Avg / year</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-year">—</div>
                                 </div>
                             </div>
@@ -115,7 +115,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Meilleur mois</div>
+                                    <div class="small text-muted">Best month</div>
                                     <div class="fw-bold" style="font-size:0.9rem;" id="kpi-best-month">—</div>
                                 </div>
                             </div>
@@ -123,7 +123,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Meilleur jour</div>
+                                    <div class="small text-muted">Best day</div>
                                     <div class="fw-bold fs-5" id="kpi-best-dow">—</div>
                                 </div>
                             </div>
@@ -131,11 +131,11 @@
                     </div>
                     <!-- KPI coûts (masqué si TotalCost == 0) -->
                     <div class="row g-2 mb-3" id="kpi-cost-section" style="display:none;">
-                        <div class="col-12"><small class="text-muted">Coûts</small></div>
+                        <div class="col-12"><small class="text-muted">Costs</small></div>
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Total dépensé</div>
+                                    <div class="small text-muted">Total spent</div>
                                     <div class="fw-bold fs-5" id="kpi-total-cost">—</div>
                                 </div>
                             </div>
@@ -143,7 +143,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / jour</div>
+                                    <div class="small text-muted">Avg cost / day</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-cost-day">—</div>
                                 </div>
                             </div>
@@ -151,7 +151,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / semaine</div>
+                                    <div class="small text-muted">Avg cost / week</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-cost-week">—</div>
                                 </div>
                             </div>
@@ -159,7 +159,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / mois</div>
+                                    <div class="small text-muted">Avg cost / month</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-cost-month">—</div>
                                 </div>
                             </div>
@@ -167,7 +167,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / an</div>
+                                    <div class="small text-muted">Avg cost / year</div>
                                     <div class="fw-bold fs-5" id="kpi-avg-cost-year">—</div>
                                 </div>
                             </div>
@@ -176,9 +176,9 @@
 
                     <div id="heatmapWrap" class="mb-3"></div>
                     <div class="btn-group mb-3" role="group">
-                        <button class="btn btn-sm btn-outline-primary chart-tab active" data-chart="monthly">Par mois</button>
-                        <button class="btn btn-sm btn-outline-primary chart-tab" data-chart="yearly">Par an</button>
-                        <button class="btn btn-sm btn-outline-primary chart-tab" data-chart="dow">Jour de semaine</button>
+                        <button class="btn btn-sm btn-outline-primary chart-tab active" data-chart="monthly">By month</button>
+                        <button class="btn btn-sm btn-outline-primary chart-tab" data-chart="yearly">By year</button>
+                        <button class="btn btn-sm btn-outline-primary chart-tab" data-chart="dow">Day of week</button>
                     </div>
                     <div style="position:relative; height:280px;">
                         <canvas id="main-chart"></canvas>
@@ -197,14 +197,14 @@
                     <button class="btn btn-sm btn-outline-secondary" onclick="closeCompare()">✕</button>
                 </div>
                 <div class="card-body">
-                    <div id="compareLoading" class="text-muted mb-2" style="display:none;">Chargement…</div>
+                    <div id="compareLoading" class="text-muted mb-2" style="display:none;">Loading…</div>
 
                     <!-- KPIs fusionnés -->
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Jours actifs</div>
+                                    <div class="small text-muted">Active days</div>
                                     <div class="fw-bold fs-5" id="kpi-f-dtotal">—</div>
                                 </div>
                             </div>
@@ -220,7 +220,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / jour</div>
+                                    <div class="small text-muted">Avg / day</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-day">—</div>
                                 </div>
                             </div>
@@ -228,7 +228,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / semaine</div>
+                                    <div class="small text-muted">Avg / week</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-week">—</div>
                                 </div>
                             </div>
@@ -236,7 +236,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / mois</div>
+                                    <div class="small text-muted">Avg / month</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-month">—</div>
                                 </div>
                             </div>
@@ -244,7 +244,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy / an</div>
+                                    <div class="small text-muted">Avg / year</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-year">—</div>
                                 </div>
                             </div>
@@ -252,7 +252,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Meilleur mois</div>
+                                    <div class="small text-muted">Best month</div>
                                     <div class="fw-bold" style="font-size:0.9rem;" id="kpi-f-best-month">—</div>
                                 </div>
                             </div>
@@ -260,7 +260,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Meilleur jour</div>
+                                    <div class="small text-muted">Best day</div>
                                     <div class="fw-bold fs-5" id="kpi-f-best-dow">—</div>
                                 </div>
                             </div>
@@ -269,11 +269,11 @@
 
                     <!-- KPI coûts fusionnés (masqué si TotalCost == 0) -->
                     <div class="row g-2 mb-3" id="kpi-f-cost-section" style="display:none;">
-                        <div class="col-12"><small class="text-muted">Coûts</small></div>
+                        <div class="col-12"><small class="text-muted">Costs</small></div>
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Total dépensé</div>
+                                    <div class="small text-muted">Total spent</div>
                                     <div class="fw-bold fs-5" id="kpi-f-total-cost">—</div>
                                 </div>
                             </div>
@@ -281,7 +281,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / jour</div>
+                                    <div class="small text-muted">Avg cost / day</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-cost-day">—</div>
                                 </div>
                             </div>
@@ -289,7 +289,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / semaine</div>
+                                    <div class="small text-muted">Avg cost / week</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-cost-week">—</div>
                                 </div>
                             </div>
@@ -297,7 +297,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / mois</div>
+                                    <div class="small text-muted">Avg cost / month</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-cost-month">—</div>
                                 </div>
                             </div>
@@ -305,7 +305,7 @@
                         <div class="col-6 col-sm-4 col-md-2">
                             <div class="card text-center border-secondary h-100">
                                 <div class="card-body py-2 px-1">
-                                    <div class="small text-muted">Moy coût / an</div>
+                                    <div class="small text-muted">Avg cost / year</div>
                                     <div class="fw-bold fs-5" id="kpi-f-avg-cost-year">—</div>
                                 </div>
                             </div>
@@ -317,8 +317,8 @@
 
                     <!-- Chart tabs -->
                     <div class="btn-group mb-3" role="group">
-                        <button class="btn btn-sm btn-outline-primary cmp-tab active" data-cmp="monthly">Par mois</button>
-                        <button class="btn btn-sm btn-outline-primary cmp-tab" data-cmp="yearly">Par an</button>
+                        <button class="btn btn-sm btn-outline-primary cmp-tab active" data-cmp="monthly">By month</button>
+                        <button class="btn btn-sm btn-outline-primary cmp-tab" data-cmp="yearly">By year</button>
                     </div>
                     <div style="position:relative; height:280px;">
                         <canvas id="compare-chart"></canvas>
