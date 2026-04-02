@@ -1,4 +1,4 @@
-name: Main-Docker
+name: Main-Docker - AMD64 Only
 
 on:
   workflow_dispatch:

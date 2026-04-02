@@ -1,4 +1,4 @@
-name: Main-Docker
+name: Main-Docker - MultiArch
 
 on:
   workflow_dispatch:
