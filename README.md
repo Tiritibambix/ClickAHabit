@@ -1,5 +1,7 @@
 [![Main-Docker](https://github.com/Tiritibambix/ClickAHabit/actions/workflows/main-docker.yml/badge.svg)](https://github.com/Tiritibambix/ClickAHabit/actions/workflows/main-docker.yml)
 
+[![Main-Docker - AMD64 Only](https://github.com/Tiritibambix/ClickAHabit/actions/workflows/main-docker-amd64-only.yml/badge.svg)](https://github.com/Tiritibambix/ClickAHabit/actions/workflows/main-docker-amd64-only.yml)
+
 <h1><a href="https://github.com/aceberg/clickahabit">
     <img src="https://raw.githubusercontent.com/aceberg/clickahabit/main/assets/logo.png" width="35" />
 </a>Click A Habit</h1>
