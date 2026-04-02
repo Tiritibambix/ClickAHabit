@@ -25,6 +25,7 @@ type StatData struct {
 	DowDays         map[string]int
 	MonthlyTotals   []MonthPoint
 	YearlyTotals    []YearPoint
+	HasCost         bool
 	TotalCost       float64
 	AvgCostPerDay   float64
 	AvgCostPerWeek  float64
@@ -68,6 +69,7 @@ func buildStatData(stat models.Stat) StatData {
 	data.Group = stat.Group
 	data.DTotal = stat.DTotal
 	data.CTotal = stat.CTotal
+	data.HasCost = stat.HasCost
 
 	dowCounts   := make(map[string]int)
 	dowDays     := make(map[string]int)

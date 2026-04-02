@@ -44,6 +44,12 @@ func statsHandler(c *gin.Context) {
 				stat.Group = check.Group
 				stat.DTotal = 1
 				stat.CTotal = check.Count
+				for _, p := range allPlans {
+					if p.Name == check.Name && p.Group == check.Group {
+						stat.HasCost = p.HasCost
+						break
+					}
+				}
 			}
 
 			stat.Checks = append(stat.Checks, check)

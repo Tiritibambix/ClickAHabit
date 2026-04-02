@@ -205,11 +205,12 @@ function renderKpisInto(data, prefix) {
     document.getElementById('kpi-' + s + 'best-dow').textContent =
         bestDow ? bestDow + ' (' + bestDowVal + ')' : '—';
 
-    // Cost KPIs
+    // Cost KPIs: show for habits with HasCost flag, always show for fusions
     const costSection = document.getElementById('kpi-' + s + 'cost-section');
-    if (data.TotalCost && data.TotalCost > 0) {
+    const showCost = prefix !== 'single' || data.HasCost === true;
+    if (showCost) {
         costSection.style.display = '';
-        document.getElementById('kpi-' + s + 'total-cost').textContent     = data.TotalCost.toFixed(2) + ' €';
+        document.getElementById('kpi-' + s + 'total-cost').textContent     = data.TotalCost ? data.TotalCost.toFixed(2) + ' €' : '0.00 €';
         document.getElementById('kpi-' + s + 'avg-cost-day').textContent   = fmtCost(data.AvgCostPerDay);
         document.getElementById('kpi-' + s + 'avg-cost-week').textContent  = fmtCost(data.AvgCostPerWeek);
         document.getElementById('kpi-' + s + 'avg-cost-month').textContent = fmtCost(data.AvgCostPerMonth);

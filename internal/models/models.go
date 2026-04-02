@@ -45,11 +45,12 @@ type Check struct {
 
 // Stat - statistic
 type Stat struct {
-	Name   string
-	Group  string
-	DTotal int
-	CTotal int
-	Checks []Check
+	Name    string
+	Group   string
+	DTotal  int
+	CTotal  int
+	HasCost bool
+	Checks  []Check
 }
 
 // GuiData - web gui data
