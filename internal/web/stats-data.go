@@ -74,17 +74,27 @@ func buildStatData(stat models.Stat) StatData {
 
 	trackedDays := make(map[string]bool)
 
+	// Track first and last date for period calculation
+	var firstDate, lastDate time.Time
+
 	for _, check := range stat.Checks {
 		t, err := time.Parse("2006-01-02", check.Date)
 		if err != nil {
 			continue
 		}
 
-		dow      := dayOfWeekLabel(t)
-		month    := t.Format("2006-01")
-		year     := strconv.Itoa(t.Year())
+		if firstDate.IsZero() || t.Before(firstDate) {
+			firstDate = t
+		}
+		if lastDate.IsZero() || t.After(lastDate) {
+			lastDate = t
+		}
+
+		dow     := dayOfWeekLabel(t)
+		month   := t.Format("2006-01")
+		year    := strconv.Itoa(t.Year())
 		isoYear, isoWeek := t.ISOWeek()
-		week     := strconv.Itoa(isoYear) + "-W" + strconv.Itoa(isoWeek)
+		week    := strconv.Itoa(isoYear) + "-W" + strconv.Itoa(isoWeek)
 
 		dowCounts[dow]     += check.Count
 		monthCounts[month] += check.Count
@@ -102,17 +112,37 @@ func buildStatData(stat models.Stat) StatData {
 	data.DowCounts = dowCounts
 	data.DowDays   = dowDays
 
-	if stat.DTotal > 0 {
-		data.AvgPerDay = float64(stat.CTotal) / float64(stat.DTotal)
-	}
-	if len(weekCounts) > 0 {
-		data.AvgPerWeek = float64(stat.CTotal) / float64(len(weekCounts))
-	}
-	if len(monthCounts) > 0 {
-		data.AvgPerMonth = float64(stat.CTotal) / float64(len(monthCounts))
-	}
-	if len(yearCounts) > 0 {
-		data.AvgPerYear = float64(stat.CTotal) / float64(len(yearCounts))
+	// Averages over full period (first check -> today)
+	if !firstDate.IsZero() {
+		today := time.Now()
+		if lastDate.Before(today) {
+			lastDate = today
+		}
+
+		totalDays := int(lastDate.Sub(firstDate).Hours()/24) + 1
+		if totalDays > 0 {
+			data.AvgPerDay = float64(stat.CTotal) / float64(totalDays)
+		}
+
+		totalWeeks := totalDays / 7
+		if totalDays%7 > 0 {
+			totalWeeks++
+		}
+		if totalWeeks > 0 {
+			data.AvgPerWeek = float64(stat.CTotal) / float64(totalWeeks)
+		}
+
+		// Months spanned
+		months := (lastDate.Year()-firstDate.Year())*12 + int(lastDate.Month()) - int(firstDate.Month()) + 1
+		if months > 0 {
+			data.AvgPerMonth = float64(stat.CTotal) / float64(months)
+		}
+
+		// Years spanned
+		years := lastDate.Year() - firstDate.Year() + 1
+		if years > 0 {
+			data.AvgPerYear = float64(stat.CTotal) / float64(years)
+		}
 	}
 
 	// Monthly sorted list
