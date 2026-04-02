@@ -73,7 +73,7 @@ async function getMore(key) {
     const heatWrap = document.getElementById('heatmapWrap');
     heatWrap.innerHTML = `
         <div class="horiz-scroll">
-            <div style="height:200px;width:1200px;">
+            <div style="max-height:150px;width:1200px;">
                 <canvas id="matrix-chart" style="height:100%;width:100%;"></canvas>
             </div>
         </div>`;
