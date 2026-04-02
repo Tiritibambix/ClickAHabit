@@ -15,8 +15,22 @@ function lowerData(heat) {
     return ldata;
 };
 
+function buildMonthMap(ldata) {
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const map = {};
+    ldata.forEach(item => {
+        if (item.y === 'Mo' && item.d) {
+            const d = new Date(item.d);
+            map[item.x] = monthNames[d.getMonth()];
+        }
+    });
+    return map;
+}
+
 function makeChart(heat, hcolor) {
     let ldata = lowerData(heat);
+    const monthMap = buildMonthMap(ldata);
+
     var ctx = document.getElementById('matrix-chart').getContext('2d');
     window.myMatrix = new Chart(ctx, {
         type: 'matrix',
@@ -30,19 +44,13 @@ function makeChart(heat, hcolor) {
                     return Chart.helpers.color(hcolor).alpha(alpha).rgbString();
                 },
                 borderColor(context) {
-                    const value = context.dataset.data[context.dataIndex].v;
-                    const alpha = 0.5;
-                    return Chart.helpers.color('grey').alpha(alpha).rgbString();
+                    return Chart.helpers.color('grey').alpha(0.5).rgbString();
                 },
                 borderWidth: 1,
                 hoverBackgroundColor: 'lightgrey',
                 hoverBorderColor: 'grey',
-                width() {
-                    return 20;
-                },
-                height() {
-                    return 20;
-                }
+                width() { return 20; },
+                height() { return 20; }
             }]
         },
         options: {
@@ -50,9 +58,7 @@ function makeChart(heat, hcolor) {
                 legend: false,
                 tooltip: {
                     callbacks: {
-                        title() {
-                            return '';
-                        },
+                        title() { return ''; },
                         label(context) {
                             const v = context.dataset.data[context.dataIndex];
                             return [v.v, v.d];
@@ -66,30 +72,32 @@ function makeChart(heat, hcolor) {
                     offset: true,
                     reverse: false,
                     ticks: {
-                        display: false
+                        display: true,
+                        maxRotation: 0,
+                        autoSkip: false,
+                        color: '#888',
+                        font: { size: 10 },
+                        callback(val, index) {
+                            const label = this.getLabelForValue(val);
+                            const month = monthMap[label];
+                            if (!month) return '';
+                            // show only on first week of each month
+                            const prevLabel = index > 0 ? this.getLabelForValue(this.ticks[index - 1].value) : null;
+                            const prevMonth = prevLabel ? monthMap[prevLabel] : null;
+                            return month !== prevMonth ? month : '';
+                        }
                     },
-                    border: {
-                        display: false
-                    },
-                    grid: {
-                        display: false
-                    }
+                    border: { display: false },
+                    grid: { display: false }
                 },
                 y: {
                     type: 'category',
-                    labels: ['Mo', 'Tu', 'We','Th','Fr','Sa','Su'],
+                    labels: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
                     reverse: false,
-                    ticks: {
-                        stepSize: 1,
-                        display: true
-                    },
-                    border: {
-                        display: false
-                    },
-                    grid: {
-                        display: false
-                    }
-                },
+                    ticks: { stepSize: 1, display: true },
+                    border: { display: false },
+                    grid: { display: false }
+                }
             }
         }
     });
