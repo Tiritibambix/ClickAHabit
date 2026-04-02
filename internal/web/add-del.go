@@ -47,6 +47,7 @@ func delHandler(c *gin.Context) {
 		for _, check := range allChecks {
 			if ID == check.ID {
 				check.Count = 0
+				check.Cost = 0
 				db.Update(appConfig.DBPath, tab, check, check.ID)
 				break
 			}
