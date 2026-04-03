@@ -23,6 +23,13 @@ function makeChart(heat, hcolor) {
         const allXvals = [...new Set(ldata.map(d => parseInt(d.x)))].sort((a, b) => a - b);
         const keepX = new Set(allXvals.slice(-16).map(String));
         ldata = ldata.filter(d => keepX.has(d.x));
+
+        // Resize container to match actual number of weeks so cells are compact
+        const canvas = document.getElementById('matrix-chart');
+        if (canvas && canvas.parentElement) {
+            const numWeeks = keepX.size;
+            canvas.parentElement.style.width = (numWeeks * 22 + 55) + 'px';
+        }
     }
 
     const cellSize = 20;
