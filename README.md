@@ -53,9 +53,9 @@ Configuration can be done through config file or environment variables
 | -------- | ----------- | ------- |
 | HOST | Listen address | 0.0.0.0 |
 | PORT | Port for web GUI | 8852 |
-| THEME | Any theme name from https://bootswatch.com in lowercase or [additional](https://github.com/aceberg/aceberg-bootswatch-fork) (emerald, grass, sand) | united |
-| COLOR | Background color: light or dark | light |
-| BTNWIDTH | Adjust buttons to theme | 195px |
+| THEME | Accent color: `emerald`, `blue`, `indigo`, `violet`, `rose`, `red`, `orange`, `amber`, `teal`, `slate` | emerald |
+| COLOR | Default color mode: light or dark (anyone can also flip this per-browser with the sun/moon button in the navbar) | light |
+| BTNWIDTH | Deprecated / no-op. Habit tiles now lay out on a responsive grid, so button width is no longer configurable. Kept only so old config files keep loading. | 195px |
 | TZ | Set your timezone for correct time | "" |
 
 ## Options
@@ -67,7 +67,7 @@ Configuration can be done through config file or environment variables
 
 ## Local network only
 
-By default, this app pulls themes, icons and fonts from the internet. But in some cases it may be useful to have a setup independent from the global network. A separate [image](https://github.com/aceberg/my-dockerfiles/tree/main/node-bootstrap) exists with all necessary modules and fonts.
+By default, this app pulls Bootstrap, Bootstrap Icons and Chart.js from the internet. But in some cases it may be useful to have a setup independent from the global network. A separate [image](https://github.com/aceberg/my-dockerfiles/tree/main/node-bootstrap) exists with all necessary modules and fonts. As of the UI redesign below, this app only needs the plain `bootstrap` and `bootstrap-icons` npm packages (Bootswatch is no longer used), so make sure the local assets image bundles those.
 
 ```sh
 docker run --name node-bootstrap       \
@@ -97,13 +97,20 @@ Or use [docker-compose](docker-compose-local.yml)
 - **Charts**: monthly evolution (bar + avg/active day line), yearly evolution, breakdown by day of week — computed server-side
 - **Habit fusion**: select multiple habits via checkboxes and merge them into a single stat view — combined KPIs, heatmap and charts
 
-### UI
+### UI — full redesign
 
-- Compact navbar with icons
-- Cleaner date navigation bar
-- Improved context menu
-- Responsive habit buttons on mobile
-- Config page cleaned up (version block removed)
+- Dropped Bootswatch; the whole app now runs on a custom design system layered on Bootstrap's own semantic CSS variables (`--bs-*`), so every component (navbar, buttons, cards, forms, tables, modal) is consistently themed instead of depending on whichever of the 28 third-party themes was picked
+- Accent color replaces the old theme picker: 10 curated colors (emerald, blue, indigo, violet, rose, red, orange, amber, teal, slate), each tuned separately for light and dark mode for proper contrast
+- A sun/moon button in the navbar lets anyone flip light/dark instantly for their own browser (saved in `localStorage`), on top of the server-wide default in Config
+- Habit buttons are now proper tiles on a responsive auto-fit grid (no more fixed-width `btn-group` hack, no more overflow on long habit names — they truncate with an ellipsis instead)
+- Active page is now highlighted in the navbar
+- Fixed: the right-click habit context menu could appear off-target after scrolling the page (it used scroll-relative coordinates with `position: fixed`)
+- Fixed: duplicate entries in the Theme/Color dropdowns on the Config page
+- Fixed: broken-image icon shown when a habit or the icon-preview had no icon set
+- Added a confirmation prompt before deleting a habit from the Plan page
+- Fixed a leftover French label ("Fusion") in the Stats merge panel
+- Config page cleaned up: accent swatches, grouped settings, version shown in the About card
+- Responsive habit tiles and nav on mobile, no fixed button width to fight with
 
 ### GitHub Actions workflow
 

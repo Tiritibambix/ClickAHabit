@@ -115,7 +115,7 @@ async function openCompare() {
     const keys = Array.from(selectedKeys);
     if (keys.length < 2) return;
 
-    document.getElementById('compareHeader').textContent = 'Fusion : ' + keys.join(', ');
+    document.getElementById('compareHeader').textContent = 'Merge: ' + keys.join(', ');
     document.getElementById('panelCompare').style.display = '';
     document.getElementById('compareLoading').style.display = '';
 

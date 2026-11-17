@@ -3,55 +3,57 @@
 <body>
     <div class="container-lg mt-4">
     <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-lg-8">
             <div class="card border-primary">
                 <div class="card-header fw-semibold">Configuration</div>
                 <div class="card-body">
                     <form action="/config/" method="post">
-                        <div class="mb-3 row align-items-center">
-                            <label class="col-sm-4 col-form-label text-muted small">Host</label>
-                            <div class="col-sm-8"><input name="host" type="text" class="form-control form-control-sm" value="{{ .Config.Host }}"></div>
-                        </div>
-                        <div class="mb-3 row align-items-center">
-                            <label class="col-sm-4 col-form-label text-muted small">Port</label>
-                            <div class="col-sm-8"><input name="port" type="text" class="form-control form-control-sm" value="{{ .Config.Port }}"></div>
-                        </div>
-                        <div class="mb-3 row align-items-center">
-                            <label class="col-sm-4 col-form-label text-muted small">Theme</label>
-                            <div class="col-sm-8">
-                                <select name="theme" class="form-select form-select-sm">
-                                    <option selected>{{ .Config.Theme }}</option>
-                                    {{ range .Themes }}
-                                        <option value="{{ . }}">{{ . }}</option>
-                                    {{ end }}
-                                </select>
+                        <div class="mb-4">
+                            <label class="form-label small text-muted d-block mb-2">Accent color</label>
+                            <div class="accent-swatch-group" role="radiogroup" aria-label="Accent color">
+                                {{ range .Accents }}
+                                <label class="accent-swatch" style="background: {{ .Hex }};" title="{{ .Label }}">
+                                    <input type="radio" name="theme" value="{{ .Key }}" {{ if eq .Key $.Config.Theme }}checked{{ end }}>
+                                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                                    <span class="visually-hidden">{{ .Label }}</span>
+                                </label>
+                                {{ end }}
                             </div>
                         </div>
-                        <div class="mb-3 row align-items-center">
-                            <label class="col-sm-4 col-form-label text-muted small">Color mode</label>
+
+                        <div class="mb-4 row align-items-center">
+                            <label class="col-sm-4 col-form-label small text-muted">Color mode</label>
                             <div class="col-sm-8">
                                 <select name="color" class="form-select form-select-sm">
-                                    <option selected>{{ .Config.Color }}</option>
-                                    <option value="light">light</option>
-                                    <option value="dark">dark</option>
+                                    <option value="light" {{ if eq .Config.Color "light" }}selected{{ end }}>Light</option>
+                                    <option value="dark" {{ if eq .Config.Color "dark" }}selected{{ end }}>Dark</option>
                                 </select>
+                                <div class="form-text">Default theme for new visitors. The moon/sun button in the navbar lets anyone override it instantly for their own browser.</div>
                             </div>
                         </div>
-                        <div class="mb-4 row align-items-center">
-                            <label class="col-sm-4 col-form-label text-muted small">Button width</label>
-                            <div class="col-sm-8"><input name="btnwidth" type="text" class="form-control form-control-sm" value="{{ .Config.BtnWidth }}"></div>
+
+                        <hr class="my-4">
+
+                        <div class="mb-3 row align-items-center">
+                            <label class="col-sm-4 col-form-label small text-muted">Host</label>
+                            <div class="col-sm-8"><input name="host" type="text" class="form-control form-control-sm" value="{{ .Config.Host }}"></div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-sm px-4">Save</button>
+                        <div class="mb-4 row align-items-center">
+                            <label class="col-sm-4 col-form-label small text-muted">Port</label>
+                            <div class="col-sm-8"><input name="port" type="text" class="form-control form-control-sm" value="{{ .Config.Port }}"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Save</button>
                     </form>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-lg-4">
             <div class="card border-secondary">
                 <div class="card-header fw-semibold">About</div>
                 <div class="card-body small text-muted">
-                    <p>After changing <strong>Host</strong> or <strong>Port</strong> the app must be restarted.</p>
-                    <p><strong>Button Width</strong> can be set in <code>px</code> or <code>em</code>. Example: <code>180px</code></p>
+                    <p class="mb-2">After changing <strong>Host</strong> or <strong>Port</strong>, the app must be restarted.</p>
+                    <p class="mb-0">Version <code>{{ .Version }}</code></p>
                 </div>
             </div>
         </div>

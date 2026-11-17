@@ -11,12 +11,35 @@ import (
 	"github.com/aceberg/ClickAHabit/internal/models"
 )
 
+// Accents - selectable accent palette, kept in sync with the
+// data-accent rules in public/css/index.css
+var Accents = []models.Accent{
+	{Key: "emerald", Label: "Emerald", Hex: "#15803d"},
+	{Key: "blue", Label: "Blue", Hex: "#2563eb"},
+	{Key: "indigo", Label: "Indigo", Hex: "#4338ca"},
+	{Key: "violet", Label: "Violet", Hex: "#7c3aed"},
+	{Key: "rose", Label: "Rose", Hex: "#be123c"},
+	{Key: "red", Label: "Red", Hex: "#b91c1c"},
+	{Key: "orange", Label: "Orange", Hex: "#c2410c"},
+	{Key: "amber", Label: "Amber", Hex: "#a16207"},
+	{Key: "teal", Label: "Teal", Hex: "#0f766e"},
+	{Key: "slate", Label: "Slate", Hex: "#334155"},
+}
+
+func isValidAccent(key string) bool {
+	for _, a := range Accents {
+		if a.Key == key {
+			return true
+		}
+	}
+	return false
+}
+
 func configHandler(c *gin.Context) {
 	var guiData models.GuiData
 
 	guiData.Config = appConfig
-
-	guiData.Themes = []string{"cerulean", "cosmo", "cyborg", "darkly", "emerald", "flatly", "grass", "journal", "litera", "lumen", "lux", "materia", "minty", "morph", "pulse", "quartz", "sand", "sandstone", "simplex", "sketchy", "slate", "solar", "spacelab", "superhero", "united", "vapor", "yeti", "zephyr"}
+	guiData.Accents = Accents
 
 	file, err := pubFS.ReadFile("public/version")
 	check.IfError(err)
@@ -31,9 +54,12 @@ func saveConfigHandler(c *gin.Context) {
 
 	appConfig.Host = c.PostForm("host")
 	appConfig.Port = c.PostForm("port")
-	appConfig.Theme = c.PostForm("theme")
 	appConfig.Color = c.PostForm("color")
-	appConfig.BtnWidth = c.PostForm("btnwidth")
+
+	theme := c.PostForm("theme")
+	if isValidAccent(theme) {
+		appConfig.Theme = theme
+	}
 
 	conf.Write(appConfig)
 

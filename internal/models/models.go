@@ -53,10 +53,17 @@ type Stat struct {
 	Checks  []Check
 }
 
+// Accent - one selectable accent color option
+type Accent struct {
+	Key   string
+	Label string
+	Hex   string
+}
+
 // GuiData - web gui data
 type GuiData struct {
 	Config  Conf
-	Themes  []string
+	Accents []Accent
 	Version string
 	OnePlan Plan
 	Plans   []Plan
