@@ -53,8 +53,9 @@ function buildMatrixChart(canvasId, ldata, hcolor) {
     const borderColor = Chart.helpers.color(getThemeColor('--bs-border-color-translucent') || 'grey').alpha(0.6).rgbString();
     const hoverColor = Chart.helpers.color(hcolor).alpha(0.92).rgbString();
 
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    return new Chart(ctx, {
+    const canvasEl = document.getElementById(canvasId);
+    const ctx = canvasEl.getContext('2d');
+    const chart = new Chart(ctx, {
         type: 'matrix',
         data: {
             datasets: [{
@@ -76,6 +77,13 @@ function buildMatrixChart(canvasId, ldata, hcolor) {
             }]
         },
         options: {
+            // The container has a fixed width/height; without this the chart
+            // keeps the aspect ratio it measured at creation time, which comes
+            // out wrong (a squashed heatmap) whenever that first measurement
+            // happened before the layout settled.
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
             plugins: {
                 legend: false,
                 tooltip: {
@@ -121,6 +129,21 @@ function buildMatrixChart(canvasId, ldata, hcolor) {
             }
         }
     });
+
+    // Safety net: if the chart was measured against a container that had not
+    // reached its final size yet, re-measure it once the stack unwinds. A timer
+    // rather than requestAnimationFrame, so it also runs on a page the browser
+    // is not painting (background tab).
+    setTimeout(() => {
+        const box = canvasEl.parentElement;
+        if (!box || !box.clientWidth) return;
+        if (Math.abs(chart.width - box.clientWidth) > 1 ||
+            Math.abs(chart.height - box.clientHeight) > 1) {
+            chart.resize();
+        }
+    }, 0);
+
+    return chart;
 }
 
 // Small "Less -> More" legend, GitHub-contributions style, so the color

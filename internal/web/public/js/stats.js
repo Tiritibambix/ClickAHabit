@@ -70,19 +70,26 @@ async function getMore(key) {
 
     if (window.myMatrix) { window.myMatrix.destroy(); window.myMatrix = null; }
 
+    // The panel has to be visible *before* the heatmap is built: Chart.js
+    // measures its container when the chart is created, and a display:none
+    // container measures 0x0 — which is what left the heatmap squashed into
+    // a sliver whenever the stats request came back slower than the timer.
+    document.getElementById('panelSingle').style.display = '';
+
     const heatWrap = document.getElementById('heatmapWrap');
     heatWrap.innerHTML = `
         <div class="horiz-scroll">
-            <div style="max-height:150px;width:1200px;">
-                <canvas id="matrix-chart" style="height:100%;width:100%;"></canvas>
+            <div style="height:160px;width:1200px;">
+                <canvas id="matrix-chart"></canvas>
             </div>
         </div>
         <div id="heatmapLegend"></div>`;
-    setTimeout(() => {
-        const color = getThemeColor('--bs-primary');
-        makeChart(heat, color);
-        document.getElementById('heatmapLegend').innerHTML = renderHeatmapLegend(color);
-    }, 50);
+    // Built straight away, no timer: the panel and the markup above are already
+    // in the document, so Chart.js measures the real 1200px container. Deferring
+    // this was what let the measurement land before the panel was visible.
+    const color = getThemeColor('--bs-primary');
+    makeChart(heat, color);
+    document.getElementById('heatmapLegend').innerHTML = renderHeatmapLegend(color);
 
     const resp = await fetch('/sdata/' + encodeURIComponent(key));
     if (!resp.ok) return;
@@ -99,8 +106,6 @@ async function getMore(key) {
             renderChart(data, activeChart);
         };
     });
-
-    document.getElementById('panelSingle').style.display = '';
 }
 
 function closeSingle() {
@@ -144,7 +149,7 @@ async function openCompare() {
     fusedHeatWrap.innerHTML = `
         <div class="horiz-scroll">
             <div style="height:200px;width:1200px;">
-                <canvas id="matrix-chart-fused" style="height:100%;width:100%;"></canvas>
+                <canvas id="matrix-chart-fused"></canvas>
             </div>
         </div>
         <div id="fusedHeatmapLegend"></div>`;
