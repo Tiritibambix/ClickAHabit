@@ -76,9 +76,12 @@ async function getMore(key) {
             <div style="max-height:150px;width:1200px;">
                 <canvas id="matrix-chart" style="height:100%;width:100%;"></canvas>
             </div>
-        </div>`;
+        </div>
+        <div id="heatmapLegend"></div>`;
     setTimeout(() => {
-        makeChart(heat, getThemeColor('--bs-primary'));
+        const color = getThemeColor('--bs-primary');
+        makeChart(heat, color);
+        document.getElementById('heatmapLegend').innerHTML = renderHeatmapLegend(color);
     }, 50);
 
     const resp = await fetch('/sdata/' + encodeURIComponent(key));
@@ -135,7 +138,7 @@ async function openCompare() {
     // KPIs fusionnés
     renderKpisInto(data, 'fused');
 
-    // Heatmap fusionnée
+    // Fused heatmap
     if (window.myMatrixFused) { window.myMatrixFused.destroy(); window.myMatrixFused = null; }
     const fusedHeatWrap = document.getElementById('fusedHeatmapWrap');
     fusedHeatWrap.innerHTML = `
@@ -143,9 +146,13 @@ async function openCompare() {
             <div style="height:200px;width:1200px;">
                 <canvas id="matrix-chart-fused" style="height:100%;width:100%;"></canvas>
             </div>
-        </div>`;
-    const ctx2d = document.getElementById('matrix-chart-fused');
-    window.myMatrixFused = makeFusedChart(heat, ctx2d, getThemeColor('--bs-primary'));
+        </div>
+        <div id="fusedHeatmapLegend"></div>`;
+    const fusedColor = getThemeColor('--bs-primary');
+    const fusedLdata = heat.map(v => ({ x: v.X, y: v.Y, d: v.D, v: v.V }));
+    window.myMatrixFused = buildMatrixChart('matrix-chart-fused', fusedLdata, fusedColor);
+    scrollHeatmapToRecent('matrix-chart-fused');
+    document.getElementById('fusedHeatmapLegend').innerHTML = renderHeatmapLegend(fusedColor);
 
     // Charts
     renderCmpChart(data, activeCmpChart);
@@ -348,55 +355,8 @@ function chartOptions(y1Label, y2Label) {
     };
 }
 
-// ═══════════════════════════════════════════════════
-//  FUSED HEATMAP (reuse heatmap.js logic on a different canvas)
-// ═══════════════════════════════════════════════════
-function makeFusedChart(heat, canvasEl, hcolor) {
-    const ldata = heat.map(v => ({ x: v.X, y: v.Y, d: v.D, v: v.V }));
-    const ctx = canvasEl.getContext('2d');
-    return new Chart(ctx, {
-        type: 'matrix',
-        data: {
-            datasets: [{
-                label: 'Heatmap',
-                data: ldata,
-                backgroundColor(context) {
-                    const value = context.dataset.data[context.dataIndex].v;
-                    return Chart.helpers.color(hcolor).alpha(2 * value / 3).rgbString();
-                },
-                borderColor(context) {
-                    return Chart.helpers.color('grey').alpha(0.5).rgbString();
-                },
-                borderWidth: 1,
-                hoverBackgroundColor: 'lightgrey',
-                hoverBorderColor: 'grey',
-                width() { return 20; },
-                height() { return 20; }
-            }]
-        },
-        options: {
-            plugins: {
-                legend: false,
-                tooltip: {
-                    callbacks: {
-                        title() { return ''; },
-                        label(context) {
-                            const v = context.dataset.data[context.dataIndex];
-                            return [v.v, v.d];
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: { type: 'category', offset: true, ticks: { display: false },
-                     border: { display: false }, grid: { display: false } },
-                y: { type: 'category', labels: ['Mo','Tu','We','Th','Fr','Sa','Su'],
-                     ticks: { stepSize: 1, display: true },
-                     border: { display: false }, grid: { display: false } }
-            }
-        }
-    });
-}
+// Fused heatmap now shares buildMatrixChart() from heatmap.js instead of
+// duplicating the matrix-chart setup here.
 
 // ═══════════════════════════════════════════════════
 //  HELPERS
